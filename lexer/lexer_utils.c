@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:45:47 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/03 15:59:49 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/05 12:53:58 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,5 +50,6 @@ void	free_token(t_token *list)
 			free(list->value);
 		list = list->next;
 		free(tmp);
+		tmp = NULL;
 	}
 }

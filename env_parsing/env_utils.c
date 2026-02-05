@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 18:08:30 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/03 18:21:21 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/05 14:02:10 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,5 +25,8 @@ void	free_env(t_env *env)
 			free(env->key);
 		env = env->next;
 		free(tmp);
+		tmp = NULL;
 	}
+	free(env);
+	env = NULL;
 }

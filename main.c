@@ -6,38 +6,43 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 11:11:59 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/03 18:34:54 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/05 14:01:25 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
+void	cleanup_data(t_minishell *data)
+{
+	free_env(data->env);
+	data->env = NULL;
+	free_token(data->tokens);
+	data->tokens = NULL;
+	//free_ast TODO
+	rl_clear_history();
+}
+
+void	clean_exit(t_minishell *data)
+{
+	cleanup_data(data);
+	free(data);
+	exit (1);
+}
+
 int	main(int ac, char **av, char **envp)
 {
-	char	*input;
-	t_token	*list;
-	t_env	*env;
+	t_minishell	*data;
 
-	list = NULL;
-	env = init_env(envp);
-	if (!env)
+	data = init_minishell(envp);
+	if (!data)
 		return (1);
 	(void)ac;
 	(void)av;
-	(void)env;
+	(void)data->env;
 	//print_env(env);
-	while (1)
-	{
-		input = readline("minishell>$ ");
-		if (!input)
-			break ;
-		if (input[0] != '\0')
-			add_history(input);
-		list = lexer(input);
-		print_list(list);
-		free(input);
-	}
+	if (shell_loop(data) == -1)
+		clean_exit(data);
+	cleanup_data(data);
+	free(data);
 	return (0);
-	free_env(env);
-
 }

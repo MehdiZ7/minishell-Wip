@@ -1,0 +1,73 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   expansion.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/04 15:28:26 by mzouhir           #+#    #+#             */
+/*   Updated: 2026/02/05 14:55:23 by mzouhir          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "minishell.h"
+
+static int	check_for_var(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+	{
+		if (str[i] == '$')
+		{
+			if (str[i + 1] && !ft_isspace(str[i + 1]))
+				return (i);
+		}
+		i++;
+	}
+	return (-1);
+}
+
+char	*extract_key(char *str)
+{
+	int	i;
+
+	i = 0;
+	if (str[i] == '?')
+		return (ft_substr(str, 0, 1));
+	while (ft_isalnum(str[i]) || str[i] == '_')
+		i++;
+	return (ft_substr(str, 0, i));
+
+}
+
+
+int	get_expansion(t_minishell *data)
+{
+	t_token	*token;
+	char	*key;
+	int		index;
+
+	index = -1;
+	token = data->tokens;
+	while (token)
+	{
+		if (token->type == WORD || token->type == DOUBLE_QUOTE)
+		{
+			index = check_for_var(token->value);
+			if (index >= 0)
+			{
+				key = extract_key(token->value + index + 1);
+				if (!key)
+					return (-1);
+				if (replace_var(token, key, index, data) == -1)
+					return (free(key), -1);
+				free(key);
+				continue ;
+			}
+		}
+		token = token->next;
+	}
+	return (0);
+}
