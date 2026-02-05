@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:04:34 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/03 17:24:52 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/05 16:01:03 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,17 +34,21 @@ static int	extract_word(char *input, int len, t_token **list)
 int	handle_word(char *input, t_token **list)
 {
 	int		i;
+	int		ret;
 
 	i = 0;
 	while (input[i] && !ft_isspace(input[i]) && !ft_isoperator(input[i]))
 	{
 		if (input[i] == '\'' || input[i] == '"')
-			i += skip_quotes(input, i);
+		{
+			ret = skip_quotes(input, i);
+			if (ret == -1)
+				return (-1);
+			i += ret;
+		}
 		else
 			i++;
 	}
-	if (i == -1)
-		return (-1);
 	if (!extract_word(input, i, list))
 		return (-2);
 	return (i);

@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:28:26 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 14:55:23 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/05 18:32:49 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,23 @@
 
 static int	check_for_var(char *str)
 {
-	int	i;
+	int		i;
+	bool	in_single;
+	bool	in_double;
 
+	in_single = false;
+	in_double = false;
 	i = 0;
 	while (str[i])
 	{
-		if (str[i] == '$')
+		if (str[i] == '\'' && in_double == false)
+			in_single = !in_single;
+		else if (str[i] == '"' && in_single == false)
+			in_double = !in_double;
+		if (str[i] == '$' && in_single == false)
 		{
-			if (str[i + 1] && !ft_isspace(str[i + 1]))
+			if (str[i + 1] && (ft_isalnum(str[i + 1])
+					|| str[i + 1] == '_' || str[i + 1] == '?'))
 				return (i);
 		}
 		i++;
@@ -53,7 +62,7 @@ int	get_expansion(t_minishell *data)
 	token = data->tokens;
 	while (token)
 	{
-		if (token->type == WORD || token->type == DOUBLE_QUOTE)
+		if (token->type == WORD)
 		{
 			index = check_for_var(token->value);
 			if (index >= 0)

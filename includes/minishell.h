@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 14:58:43 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/05 17:52:16 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,6 @@
 typedef enum e_token_type
 {
 	WORD,
-	SINGLE_QUOTE,
-	DOUBLE_QUOTE,
-	ENV_VARIABLE,
-	EXIT_STATUTS,
 	PIPE,
 	REDIR_IN,
 	REDIR_OUT,
@@ -86,13 +82,10 @@ typedef struct s_minishell
 t_minishell	*init_minishell(char **envp);
 int			shell_loop(t_minishell *data);
 
-
-
 //lexer utils
 void		free_token(t_token *list);
 int			ft_isoperator(const char c);
 int			skip_quotes(char *input, int i);
-
 
 //lexer
 t_token		*lexer(char	*input);
@@ -112,7 +105,8 @@ int			get_expansion(t_minishell *data);
 int			replace_var(t_token *token, char *key,
 				int index, t_minishell *data);
 
-
+//Parsing the quotes
+int			remove_quote(t_minishell *data);
 
 //Only for testing ! Don't forger to clear this
 void		print_list(t_token *list);

@@ -6,7 +6,7 @@
 #    By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/27 11:34:03 by mzouhir           #+#    #+#              #
-#    Updated: 2026/02/05 14:59:19 by mzouhir          ###   ########.fr        #
+#    Updated: 2026/02/05 17:16:36 by mzouhir          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@
 NAME=minishell
 SRCS= 	main.c lexer/lexer.c lexer/lexer_utils.c lexer/handle_word.c lexer/handle_separator.c \
 		env_parsing/env.c env_parsing/env_utils.c expansion/expansion.c main_utils.c \
-		expansion/expansion_utils.c
+		expansion/expansion_utils.c quotes_parsing/quotes.c
 SRCS+= testing/check_token.c
 OBJS= ${addprefix ${OBJS_DIR}, ${SRCS:.c=.o}}
 OBJS_DIR= Objs/

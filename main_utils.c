@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/05 12:32:42 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 15:03:59 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/05 17:24:48 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ int	shell_loop(t_minishell *data)
 		if (!data->tokens)
 			return (free(input), -1);
 		if (get_expansion(data) == -1)
+			return (free(input), -1);
+		if (remove_quote(data) == -1)
 			return (free(input), -1);
 		print_list(data->tokens);
 		free(input);
