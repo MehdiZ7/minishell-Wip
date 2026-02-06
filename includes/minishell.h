@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 17:52:16 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/06 14:17:17 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,28 @@ typedef enum e_node_type
 	NODE_CMD
 }t_node_type;
 
+typedef enum e_redir_type
+{
+	REDIR_IN_FILE,
+	REDIR_OUT_FILE,
+	REDIR_APPEND,
+	REDIT_HEREDOC
+}t_redir_type;
+
+typedef struct s_redir_node
+{
+	t_redir_type		type;
+	char				*filename;
+	struct s_io_node	*next;
+}t_redir_node;
+
 typedef struct s_node
 {
 	t_node_type		type;
 	struct s_node	*left;
 	struct s_node	*right;
 	char			**args;
+	t_redir_node	*redir;
 }t_node;
 
 typedef struct s_env
@@ -107,6 +123,15 @@ int			replace_var(t_token *token, char *key,
 
 //Parsing the quotes
 int			remove_quote(t_minishell *data);
+
+//Parsing for the abstract syntax tree
+t_node		*create_ast_node(t_node_type type);
+
+//Parsing AST utils
+void		free_ast_node(t_node *ast);
+void		free_redir_node(t_redir_node *node);
+void		free_args(char **argv);
+
 
 //Only for testing ! Don't forger to clear this
 void		print_list(t_token *list);
