@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/05 12:32:42 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 17:24:48 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/10 14:50:47 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,24 @@ int	shell_loop(t_minishell *data)
 			break ;
 		if (input[0] != '\0')
 			add_history(input);
+		else
+		{
+			free(input);
+			continue ;
+		}
 		data->tokens = lexer(input);
 		if (!data->tokens)
-			return (free(input), -1);
+		{
+			free(input);
+			continue ;
+		}
 		if (get_expansion(data) == -1)
 			return (free(input), -1);
 		if (remove_quote(data) == -1)
 			return (free(input), -1);
-		print_list(data->tokens);
+		//creation de l ast et donc du node
+		//appel de process heredoc
+		//appel de executor
 		free(input);
 		free_token(data->tokens);
 		data->tokens = NULL;

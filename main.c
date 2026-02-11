@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 11:11:59 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 14:01:25 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/10 15:45:49 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,17 @@ int	main(int ac, char **av, char **envp)
 {
 	t_minishell	*data;
 
+	(void)ac;
+	(void)av;
 	data = init_minishell(envp);
 	if (!data)
 		return (1);
-	(void)ac;
-	(void)av;
-	(void)data->env;
-	//print_env(env);
-	if (shell_loop(data) == -1)
-		clean_exit(data);
+	//if (shell_loop(data) == -1)
+	//	clean_exit(data);
+	//test_exec(data);
+	//test_pipe_exec(data);
+	//check_heredoc(data);
+	test_builtins(data);
 	cleanup_data(data);
 	free(data);
 	return (0);

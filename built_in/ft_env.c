@@ -1,49 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parser.c                                           :+:      :+:    :+:   */
+/*   ft_env.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/05 18:47:23 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/09 14:13:46 by mzouhir          ###   ########.fr       */
+/*   Created: 2026/02/10 17:09:19 by mzouhir           #+#    #+#             */
+/*   Updated: 2026/02/10 17:28:50 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/*t_node	*parse_cmd(t_token **token)
+int	ft_env(t_minishell *data)
 {
-	t_node	*node;
-	t_token	*head;
+	t_env	*envp;
 
-	if (!(*token))
-		return (NULL);
-	node = create_ast_node(NODE_CMD);
-	head = token;
-	while (head)
+	envp = data->env;
+	while (envp)
 	{
-
-		head = head->next;
+		if (envp->value)
+		{
+			printf("%s", envp->key);
+			printf("=");
+			printf("%s", envp->value);
+			printf("\n");
+		}
+		envp = envp->next;
 	}
-
-	return (NULL);
+	data->exit_status = 0;
+	return (0);
 }
-
-t_node	*parse_pipe(t_token **token)
-{
-	return (parse_cmd(token));
-}
-
-t_node	*parse_aor(t_token **token)
-{
-	return (parse_pipe(token));
-}
-
-t_node	*create_ast(t_token *token)
-{
-	//cree node tdnode racine
-
-	return (parse_aor(token));
-}*/
-

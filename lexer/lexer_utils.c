@@ -3,16 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:45:47 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 16:17:36 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/08 17:15:48 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	ft_isoperator(const char c)
+char	ft_first_char_not_ingroup(char *str, size_t start, char *grp)
+{
+	size_t	i;
+
+	if (str == NULL || grp == NULL || ft_strlen(str) <= start)
+		return (0);
+	i = start;
+	while (str[i] != 0)
+	{
+		if (ft_strchr(grp, str[i]) == NULL)
+			return (str[i]);
+		i++;
+	}
+	return (0);
+}
+
+int	ft_isseparator(const char c)
 {
 	if (c == '|')
 		return (1);
@@ -23,7 +39,7 @@ int	ft_isoperator(const char c)
 	return (0);
 }
 
-int	skip_quotes(char *input, int i)
+int	ft_strlen_without_quotes(char *input, int i)
 {
 	char	q;
 	int		index;

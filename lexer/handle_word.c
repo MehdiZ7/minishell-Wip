@@ -3,24 +3,42 @@
 /*                                                        :::      ::::::::   */
 /*   handle_word.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:04:34 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 16:01:03 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/08 18:01:32 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	extract_word(char *input, int len, t_token **list)
-{
-	char	*word;
-	t_token	*new;
 
+int	handle_quotes(char *input, t_token **list)
+{
+	int					len;
+	enum e_token_type	token_type;
+	char				*word;
+	t_token				*new;
+
+	len = 1;
+	token_type = (input[0] == '\'') * SINGLE_QUOTE \
+	+ (input[0] == '"') * DOUBLE_QUOTE;
+	if (token_type == 0)
+		return (-1);
+	while (input[len] && input[len] != '"' && input[len] != '\'')
+		len++;
+	if (len == 0)
+		return (len);
+	if (input[len] == 0) //TODO: Absence de caracteres final
+		return (-1);
+	if (input[len] == '\'' && token_type == DOUBLE_QUOTE)
+		return (-1);
+	if (input[len] == '"' && token_type == SINGLE_QUOTE)
+		return (-1);
 	word = ft_substr(input, 0, len);
 	if (!word)
 		return (0);
-	new = create_token(word, WORD);
+	new = create_token(word, token_type);
 	if (!new)
 	{
 		free(word);
@@ -28,28 +46,34 @@ static int	extract_word(char *input, int len, t_token **list)
 	}
 	free(word);
 	token_add_back(new, list);
-	return (1);
+	return (len + 1);
 }
 
-int	handle_word(char *input, t_token **list)
+int	handle_cmd_or_arg(char *input, t_token **list)
 {
-	int		i;
-	int		ret;
+	char				*word;
+	t_token				*new;
+	enum e_token_type	token_type;
+	size_t				len;
 
-	i = 0;
-	while (input[i] && !ft_isspace(input[i]) && !ft_isoperator(input[i]))
+	len = 0;
+	while (input[len] && !ft_isspace(input[len]) && !ft_isseparator(input[len]))
+		len++;
+	if (len == 0)
+		return (len);
+	word = ft_substr(input, 0, len);
+	if (!word)
+		return (0);
+	token_type = CMD_OR_ARG;
+	if (input[0] == '$')
+		token_type = ENV;
+	new = create_token(word, token_type);
+	if (!new)
 	{
-		if (input[i] == '\'' || input[i] == '"')
-		{
-			ret = skip_quotes(input, i);
-			if (ret == -1)
-				return (-1);
-			i += ret;
-		}
-		else
-			i++;
+		free(word);
+		return (0);
 	}
-	if (!extract_word(input, i, list))
-		return (-2);
-	return (i);
+	free(word);
+	token_add_back(new, list);
+	return (len);
 }

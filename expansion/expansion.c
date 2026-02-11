@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expansion.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:28:26 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 18:32:49 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/08 21:16:17 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	get_expansion(t_minishell *data)
 	token = data->tokens;
 	while (token)
 	{
-		if (token->type == WORD)
+		if (token->type == DOUBLE_QUOTE || token->type == ENV)
 		{
 			index = check_for_var(token->value);
 			if (index >= 0)

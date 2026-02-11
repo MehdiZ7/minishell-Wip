@@ -1,14 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   quotes.quote                                           :+:      :+:    :+:   */
+/*   quotes.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/05 16:09:10 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 17:41:58 by mzouhir          ###   ########.fr       */
+/*   Created: 2026/02/09 11:47:16 by mzouhir           #+#    #+#             */
+/*   Updated: 2026/02/09 11:47:25 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+
 
 #include "minishell.h"
 
@@ -72,7 +74,7 @@ int	remove_quote(t_minishell *data)
 	token = data->tokens;
 	while (token)
 	{
-		if (token->type == WORD)
+		if (token->type == SINGLE_QUOTE || token->type == DOUBLE_QUOTE)
 		{
 			size = get_new_size(token->value);
 			removed = malloc(sizeof(char) * (size + 1));

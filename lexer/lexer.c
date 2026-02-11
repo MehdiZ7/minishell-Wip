@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:01:10 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 16:17:25 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/08 22:09:25 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,26 +47,48 @@ void	token_add_back(t_token *new, t_token **list)
 	tmp->next = new;
 }
 
-t_token	*lexer(char	*input)
+t_token	*lexer(char *input)
 {
 	int		i;
 	int		ret;
 	t_token	*list;
+	t_token	*tok;
 
 	ret = 0;
 	i = 0;
 	list = NULL;
 	while (input[i])
 	{
-		if (ft_isspace(input[i]))
-		{
+		while (ft_isspace(input[i]))
 			i++;
-			continue ;
-		}
-		else if (ft_isoperator(input[i]))
+		if (ft_isseparator(input[i]))
 			ret = handle_separator(input + i, &list);
+		else if (input[i] == '\"' || input[i] == '\'')
+			ret = handle_quotes(input + i, &list);
+		else if (input[i] == '(')
+		{
+			tok = create_token("(", PAREN_OPEN);
+			if (tok == NULL)
+				ret = -1;
+			else
+			{
+				token_add_back(tok, &list);
+				ret = 1;
+			}
+		}
+		else if (input[i] == ')')
+		{
+			tok = create_token(")", PAREN_CLOSE);
+			if (tok == NULL)
+				ret = -1;
+			else
+			{
+				token_add_back(tok, &list);
+				ret = 1;
+			}
+		}
 		else
-			ret = handle_word(input + i, &list);
+			ret = handle_cmd_or_arg(input + i, &list);
 		if (ret < 0)
 			return (free_token(list), NULL);
 		i += ret;
