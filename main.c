@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 11:11:59 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/10 15:45:49 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/11 13:29:26 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@ void	cleanup_data(t_minishell *data)
 	data->env = NULL;
 	free_token(data->tokens);
 	data->tokens = NULL;
-	//free_ast TODO
 	rl_clear_history();
 }
 

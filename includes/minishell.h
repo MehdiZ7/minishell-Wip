@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/10 17:15:19 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/11 13:35:07 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,6 +192,8 @@ int							built_in_exec(t_node *node, t_minishell *data);
 int							ft_echo(t_node *node, t_minishell *data);
 int							ft_pwd(t_minishell *data);
 int							ft_env(t_minishell *data);
+int							ft_exit(t_node *node, t_minishell *data);
+
 
 // Only for testing ! Don't forger to clear this
 void						print_list(t_token *list);
