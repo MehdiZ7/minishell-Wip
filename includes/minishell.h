@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 13:35:07 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/11 16:05:58 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,74 +134,77 @@ typedef struct s_minishell
 }							t_minishell;
 
 // main utils
-t_minishell					*init_minishell(char **envp);
-int							shell_loop(t_minishell *data);
+t_minishell				*init_minishell(char **envp);
+int						shell_loop(t_minishell *data);
 
 // lexer utils
-void						free_token(t_token *list);
-int							ft_isseparator(const char c);
-int							ft_strlen_without_quotes(char *input, int i);
-char						ft_first_char_not_ingroup(char *str, size_t start,
-								char *grp);
+void					free_token(t_token *list);
+int						ft_isseparator(const char c);
+int						ft_strlen_without_quotes(char *input, int i);
+char					ft_first_char_not_ingroup(char *str, size_t start,
+							char *grp);
 
 // lexer
-t_token						*lexer(char *input);
-t_token						*create_token(char *value, t_token_type type);
-void						token_add_back(t_token *new, t_token **list);
-int							handle_quotes(char *input, t_token **list);
-int							handle_separator(char *input, t_token **list);
-int							handle_cmd_or_arg(char *input, t_token **list);
+t_token					*lexer(char *input);
+t_token					*create_token(char *value, t_token_type type);
+void					token_add_back(t_token *new, t_token **list);
+int						handle_quotes(char *input, t_token **list);
+int						handle_separator(char *input, t_token **list);
+int						handle_cmd_or_arg(char *input, t_token **list);
 
 // env parsing
-t_env						*init_env(char **envp);
+t_env					*init_env(char **envp);
 
 // env utils
-void						free_env(t_env *env);
+void					free_env(t_env *env);
+void					env_add_back(t_env *new, t_env **list);
 
 // expansion
-int							get_expansion(t_minishell *data);
-int							replace_var(t_token *token, char *key, int index,
-								t_minishell *data);
+int						get_expansion(t_minishell *data);
+int						replace_var(t_token *token, char *key, int index,
+							t_minishell *data);
 
 // Parsing the quotes
-int							remove_quote(t_minishell *data);
+int						remove_quote(t_minishell *data);
 
 // Parsing for the abstract syntax tree
-t_node						*create_ast_node(t_node_type type);
+t_node					*create_ast_node(t_node_type type);
 
 // Parsing AST utils
-void						free_ast_node(t_node *ast);
-void						free_redir_node(t_redir_node *node);
-void						free_args(char **argv);
+void					free_ast_node(t_node *ast);
+void					free_redir_node(t_redir_node *node);
+void					free_args(char **argv);
 
 //Execution
-int							executor(t_node *node, t_minishell *data);
+int						executor(t_node *node, t_minishell *data);
 
 //Execution utils
-int							exec_pipe(t_node *node, t_minishell *data);
-int							exec_cmd(t_node *node, t_minishell *data);
-char						*find_path(char *cmd, t_env *env);
-char						**list_to_tab(t_env *env);
+int						exec_pipe(t_node *node, t_minishell *data);
+int						exec_cmd(t_node *node, t_minishell *data);
+char					*find_path(char *cmd, t_env *env);
+char					**list_to_tab(t_env *env);
 
 //Heredoc processor
-int							process_heredoc(t_node *node);
+int						process_heredoc(t_node *node);
 
 //built_in dispacher
-int							check_for_built_in(t_node *node);
-int							built_in_exec(t_node *node, t_minishell *data);
-int							ft_echo(t_node *node, t_minishell *data);
-int							ft_pwd(t_minishell *data);
-int							ft_env(t_minishell *data);
-int							ft_exit(t_node *node, t_minishell *data);
-
+int						check_for_built_in(t_node *node);
+int						built_in_exec(t_node *node, t_minishell *data);
+int						ft_echo(t_node *node, t_minishell *data);
+int						ft_pwd(t_minishell *data);
+int						ft_env(t_minishell *data);
+int						ft_exit(t_node *node, t_minishell *data);
+int						create_new(char *key, char *value, t_minishell *data);
+int						update_env(char *key, char *value, t_minishell *data);
+int						ft_cd(t_node *node, t_minishell *data);
 
 // Only for testing ! Don't forger to clear this
-void						print_list(t_token *list);
-void						print_env(t_env *list);
-void						test_exec(t_minishell *data);
-void						test_pipe_exec(t_minishell *data);
-void						check_heredoc(t_minishell *data);
-void						test_builtins(t_minishell *data);
+void					print_list(t_token *list);
+void					print_env(t_env *list);
+void					test_exec(t_minishell *data);
+void					test_pipe_exec(t_minishell *data);
+void					check_heredoc(t_minishell *data);
+void					test_builtins(t_minishell *data);
 
 
 
