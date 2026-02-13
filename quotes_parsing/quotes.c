@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   quotes.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 11:47:16 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 18:58:47 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/13 17:03:42 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,4 +85,19 @@ int	remove_quote(t_minishell *data)
 		token = token->next;
 	}
 	return (1);
+}
+
+char	*remove_wildcard_quote(char *str)
+{
+	char	*removed;
+	int		size;
+
+	if (!str)
+		return (NULL);
+	size = get_new_size(str);
+	removed = malloc(sizeof(char) * (size + 1));
+	if (!removed)
+		return (NULL);
+	removed = copy_removed(removed, str);
+	return (removed);
 }

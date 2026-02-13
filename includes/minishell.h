@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 12:50:04 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/13 17:04:13 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <sys/wait.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <dirent.h>
 
 typedef enum e_token_type
 {
@@ -141,6 +142,12 @@ typedef struct s_minishell
 	int					exit_status;
 }						t_minishell;
 
+typedef struct s_wild
+{
+	char			*value;
+	struct s_wild	*next;
+}						t_wild;
+
 // main utils
 t_minishell				*init_minishell(char **envp);
 int						shell_loop(t_minishell *data);
@@ -174,7 +181,8 @@ int						replace_var(t_token *token, char *key, int index,
 
 // Parsing the quotes
 int						remove_quote(t_minishell *data);
-int						remove_quote(t_minishell *data);
+char					*remove_wildcard_quote(char *str);
+
 
 // Parsing for the abstract syntax tree
 t_node					*create_ast_node(t_node_type type);
