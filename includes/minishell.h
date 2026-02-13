@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 11:36:39 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/13 12:50:04 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -213,6 +213,8 @@ int						create_new(char *key, char *value, t_minishell *data);
 int						update_env(char *key, char *value, t_minishell *data);
 int						ft_cd(t_node *node, t_minishell *data);
 int						ft_export(t_node *node, t_minishell *data);
+int						ft_unset(t_node *node, t_minishell *data);
+
 
 
 // Only for testing ! Don't forger to clear this

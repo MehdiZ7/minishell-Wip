@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 17:01:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/10 11:48:04 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/13 11:55:14 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ char	**list_to_tab(t_env *env)
 	char	**envp;
 	int		i;
 	t_env	*tmp;
+	char	*tmp_key;
 
 	tmp = env;
 	i = 0;
@@ -31,13 +32,13 @@ char	**list_to_tab(t_env *env)
 	i = 0;
 	while (env)
 	{
-		envp[i] = ft_strjoin(env->key, "=");
-		envp[i] = ft_strjoin(envp[i], env->value);
-		i++;
+		tmp_key = ft_strjoin(env->key, "=");
+		envp[i++] = ft_strjoin(tmp_key, env->value);
+		free(tmp_key);
 		env = env->next;
 	}
 	envp[i] = NULL;
-	return (NULL);
+	return (envp);
 }
 
 char	*get_env(t_env *env)
