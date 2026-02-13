@@ -3,14 +3,12 @@
 /*                                                        :::      ::::::::   */
 /*   quotes.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 11:47:16 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/09 11:47:25 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/11 18:58:47 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-
 
 #include "minishell.h"
 
@@ -86,6 +84,5 @@ int	remove_quote(t_minishell *data)
 		}
 		token = token->next;
 	}
-
 	return (1);
 }

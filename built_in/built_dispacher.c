@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 15:09:13 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 15:52:02 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/13 11:34:12 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ int	built_in_exec(t_node *node, t_minishell *data)
 		return (ft_cd(node, data));
 	if (!ft_strncmp(cmd, "pwd", 4))
 		return (ft_pwd(data));
-	//if (!ft_strncmp(cmd, "export", 7))
-	//	return (ft_export(node, data));
+	if (!ft_strncmp(cmd, "export", 7))
+		return (ft_export(node, data));
 	//if (!ft_strncmp(cmd, "unset", 6))
 	//	return (ft_unset(node, data));
 	if (!ft_strncmp(cmd, "env", 4))

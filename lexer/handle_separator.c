@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:27:51 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/08 17:02:10 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/09 20:46:47 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,31 @@ static int	extract_sep(t_token **list, char *value, t_token_type type, int len)
 	return (len);
 }
 
+static char	*ft_extract_str(char *input, int *p_len)
+{
+	int		i;
+	char	*str;
+	int		len;
+
+	i = 0;
+	while (ft_isspace(input[i]))
+		i++;
+	len = 0;
+	while (input[i + len] != 0 && !ft_isspace(input[i + len]))
+		len++;
+	str = ft_calloc(len + 1, sizeof(char));
+	if (str == NULL)
+		return (NULL);
+	ft_strlcpy(str, &input[i], len + 1);
+	*p_len = i + len;
+	return (str);
+}
+
 int	handle_separator(char *input, t_token **list)
 {
+	char	*str;
+	int		len;
+
 	if (ft_strncmp(input, "||", 2) == 0)
 	{
 		if (error_handling(input, 2, "&|") == -1)
@@ -61,31 +84,49 @@ int	handle_separator(char *input, t_token **list)
 	{
 		if (error_handling(input, 2, "><&|") == -1)
 			return (-1);
-		return (extract_sep(list, "<<", HEREDOC, 2));
+		str = ft_extract_str(&input[2], &len);
+		if (str == NULL)
+			return (-1);
+		return (extract_sep(list, str, HEREDOC, 2) + len);
 	}
 	else if (input[0] == '<')
 	{
 		if (error_handling(input, 1, "><&|") == -1)
 			return (-1);
-		return (extract_sep(list, "<", REDIR_IN, 1));
+		str = ft_extract_str(&input[1], &len);
+		if (str == NULL)
+			return (-1);
+		return (extract_sep(list, str, REDIR_IN, 1) + len);
 	}
 	else if (!ft_strncmp(input, ">>", 2))
 	{
 		if (error_handling(input, 2, "><&|") == -1)
 			return (-1);
-		return (extract_sep(list, ">>", APPEND, 2));
+		str = ft_extract_str(&input[2], &len);
+		if (str == NULL)
+			return (-1);
+		return (extract_sep(list, str, APPEND, 2) + len);
 	}
 	else if (*input == '>')
 	{
 		if (error_handling(input, 1, "><&|") == -1)
 			return (-1);
-		return (extract_sep(list, ">", REDIR_OUT, 1));
+		str = ft_extract_str(&input[1], &len);
+		if (str == NULL)
+			return (-1);
+		return (extract_sep(list, str, REDIR_OUT, 1) + len);
 	}
 	else if (!ft_strncmp(input, "&&", 2))
 	{
 		if (error_handling(input, 2, "<&|") == -1)
 			return (-1);
 		return (extract_sep(list, "&&", AND, 2));
+	}
+	else
+	{
+		ft_putstr_fd("minishell: syntax error near unexpected token `&'\n",
+			STDERR_FILENO);
+		return (-1);
 	}
 	return (0);
 }

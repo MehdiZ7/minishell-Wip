@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 11:11:59 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 13:29:26 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/12 10:55:58 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	cleanup_data(t_minishell *data)
 	data->env = NULL;
 	free_token(data->tokens);
 	data->tokens = NULL;
+	// free_ast TODO
 	rl_clear_history();
 }
 
@@ -25,7 +26,7 @@ void	clean_exit(t_minishell *data)
 {
 	cleanup_data(data);
 	free(data);
-	exit (1);
+	exit(1);
 }
 
 int	main(int ac, char **av, char **envp)
@@ -37,12 +38,12 @@ int	main(int ac, char **av, char **envp)
 	data = init_minishell(envp);
 	if (!data)
 		return (1);
-	//if (shell_loop(data) == -1)
-	//	clean_exit(data);
+	if (shell_loop(data) == -1)
+		clean_exit(data);
 	//test_exec(data);
 	//test_pipe_exec(data);
 	//check_heredoc(data);
-	test_builtins(data);
+	//test_builtins(data);
 	cleanup_data(data);
 	free(data);
 	return (0);

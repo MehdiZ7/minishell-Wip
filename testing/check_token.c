@@ -6,13 +6,13 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 15:20:27 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/08 17:42:28 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/11 19:05:22 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	print_token_type(t_token_type tok)
+static int	print_token_type_helper(t_token_type tok)
 {
 	if (tok == UNRECOGNIZED)
 		ft_putstr_fd("UNRECOGNIZED", STDOUT_FILENO);
@@ -32,6 +32,15 @@ static void	print_token_type(t_token_type tok)
 		ft_putstr_fd("APPEND", STDOUT_FILENO);
 	else if (tok == AND)
 		ft_putstr_fd("AND", STDOUT_FILENO);
+	else
+		return (0);
+	return (1);
+}
+
+static void	print_token_type(t_token_type tok)
+{
+	if (print_token_type_helper(tok))
+		;
 	else if (tok == OR)
 		ft_putstr_fd("OR", STDOUT_FILENO);
 	else if (tok == PAREN_OPEN)

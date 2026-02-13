@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:28:26 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/08 21:16:17 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/11 19:06:22 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,7 @@ char	*extract_key(char *str)
 	while (ft_isalnum(str[i]) || str[i] == '_')
 		i++;
 	return (ft_substr(str, 0, i));
-
 }
-
 
 int	get_expansion(t_minishell *data)
 {

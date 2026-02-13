@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:45:47 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/08 17:15:48 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/09 17:31:30 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@ int	ft_isseparator(const char c)
 	else if (c == '<')
 		return (1);
 	else if (c == '>')
+		return (1);
+	else if (c == '&')
 		return (1);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 16:05:58 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/13 11:36:39 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,24 +42,26 @@ typedef enum e_token_type
 	WILDCARD,
 	ENV,
 	CMD_OR_ARG
-}							t_token_type;
+}						t_token_type;
 
 typedef struct s_token
 {
-	char					*value;
-	t_token_type			type;
-	struct s_token			*next;
+	char				*value;
+	t_token_type		type;
+	struct s_token		*next;
 
-}							t_token;
+}						t_token;
 
+/*NODE_PAREN_OPEN is for AST building only*/
 typedef enum e_node_type
 {
-	NODE_NULL,
-	NODE_PIPE,
-	NODE_AND,
-	NODE_OR,
-	NODE_CMD
-}							t_node_type;
+	NODE_NULL = 0,
+	NODE_CMD = 1,
+	NODE_PAREN_OPEN = 1,
+	NODE_OR = 2,
+	NODE_AND = 3,
+	NODE_PIPE = 4,
+}						t_node_type;
 
 typedef enum e_redir_type
 {
@@ -67,24 +69,23 @@ typedef enum e_redir_type
 	REDIR_OUT_FILE,
 	REDIR_APPEND,
 	REDIR_HEREDOC
-}							t_redir_type;
+}						t_redir_type;
 
 typedef struct s_redir_node
 {
-	t_redir_type			type;
-	char					*filename;
-	struct s_redir_node		*next;
-}							t_redir_node;
+	t_redir_type		type;
+	char				*filename;
+	struct s_redir_node	*next;
+}						t_redir_node;
 
 typedef struct s_env	t_env;
-
 typedef struct s_command
 {
-	int						argc;
-	char					**argv;
-	t_env					*env;
-	t_redir_node			*redir;
-}							t_command;
+	int					argc;
+	char				**argv;
+	t_env				*env;
+	t_redir_node		*redir;
+}						t_command;
 
 typedef struct s_node	t_node;
 
@@ -92,46 +93,53 @@ typedef struct s_and_command
 {
 	t_node				*first;
 	t_node				*second;
-}							t_and_command;
+}						t_and_command;
 
 typedef struct s_or_command
 {
 	t_node				*first;
 	t_node				*second;
-}							t_or_command;
+}						t_or_command;
 
 typedef struct s_pipe_command
 {
 	t_node				*first;
 	t_node				*second;
-}							t_pipe_command;
+}						t_pipe_command;
+
+typedef struct s_bin_op
+{
+	t_node				*first;
+	t_node				*second;
+}						t_bin_op;
 
 typedef struct s_node
 {
-	t_node_type				node_type;
+	t_node_type			node_type;
 	union
 	{
-		t_command			command;
-		t_and_command		and_command;
-		t_or_command		or_command;
-		t_pipe_command		pipe_command;
+		t_command		command;
+		t_bin_op		bin_op;
+		t_and_command	and_command;
+		t_or_command	or_command;
+		t_pipe_command	pipe_command;
 	};
-}							t_node;
+}						t_node;
 
 typedef struct s_env
 {
-	char					*key;
-	char					*value;
-	struct s_env			*next;
-}							t_env;
+	char				*key;
+	char				*value;
+	struct s_env		*next;
+}						t_env;
 
 typedef struct s_minishell
 {
-	t_env					*env;
-	t_token					*tokens;
-	t_node					*ast;
-	int						exit_status;
-}							t_minishell;
+	t_env				*env;
+	t_token				*tokens;
+	t_node				*ast;
+	int					exit_status;
+}						t_minishell;
 
 // main utils
 t_minishell				*init_minishell(char **envp);
@@ -166,9 +174,16 @@ int						replace_var(t_token *token, char *key, int index,
 
 // Parsing the quotes
 int						remove_quote(t_minishell *data);
+int						remove_quote(t_minishell *data);
 
 // Parsing for the abstract syntax tree
 t_node					*create_ast_node(t_node_type type);
+t_node					*create_ast(t_minishell *minishell);
+t_redir_node			*create_redir_node(t_redir_type type);
+t_list					*infix_to_postfix(t_minishell *minishell);
+t_token					*create_ast_command(t_node **ast, t_token *tok,
+							t_env *envp);
+t_list					*push_stack(t_list **stack, t_node *node);
 
 // Parsing AST utils
 void					free_ast_node(t_node *ast);
@@ -197,6 +212,8 @@ int						ft_exit(t_node *node, t_minishell *data);
 int						create_new(char *key, char *value, t_minishell *data);
 int						update_env(char *key, char *value, t_minishell *data);
 int						ft_cd(t_node *node, t_minishell *data);
+int						ft_export(t_node *node, t_minishell *data);
+
 
 // Only for testing ! Don't forger to clear this
 void					print_list(t_token *list);
@@ -208,5 +225,9 @@ void					test_builtins(t_minishell *data);
 
 
 
+void					print_list(t_token *list);
+void					print_env(t_env *list);
+void					print_postfix_list(t_list *postfix, char *str);
+void					print_ast(t_node *node, int depth);
 
 #endif

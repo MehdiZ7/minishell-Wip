@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expansion_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/05 14:09:38 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/05 14:51:14 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/11 19:05:41 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ static char	*get_var_value(char *key, t_minishell *data)
 		return (ft_itoa(data->exit_status));
 	while (envp)
 	{
-		if (ft_strlen(key) == ft_strlen(envp->key)
-			&& !ft_strncmp(key, envp->key, ft_strlen(envp->key)))
+		if (ft_strlen(key) == ft_strlen(envp->key) && !ft_strncmp(key,
+				envp->key, ft_strlen(envp->key)))
 			return (ft_strdup(envp->value));
 		envp = envp->next;
 	}
@@ -67,5 +67,3 @@ int	replace_var(t_token *token, char *key, int index, t_minishell *data)
 		return (-1);
 	return (1);
 }
-
-

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/05 12:32:42 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 13:31:13 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/12 11:04:15 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,23 @@ t_minishell	*init_minishell(char **envp)
 		return (NULL);
 	}
 	return (data);
+}
+
+static int	shell_loop_helper(char *input, t_minishell *data)
+{
+	if (get_expansion(data) == -1)
+		return (free(input), -1);
+	if (remove_quote(data) == -1)
+		return (free(input), -1);
+	free(input);
+	data->ast = create_ast(data);
+	free_token(data->tokens);
+	data->tokens = NULL;
+	print_ast(data->ast, 0);
+	executor(data->ast, data);
+	free_ast_node(data->ast);
+	data->tokens = NULL;
+	return (0);
 }
 
 int	shell_loop(t_minishell *data)
@@ -54,16 +71,8 @@ int	shell_loop(t_minishell *data)
 			free(input);
 			continue ;
 		}
-		if (get_expansion(data) == -1)
-			return (free(input), -1);
-		if (remove_quote(data) == -1)
-			return (free(input), -1);
-		//creation de l ast et donc du node
-		//appel de process heredoc
-		//appel de executor
-		free(input);
-		free_token(data->tokens);
-		data->tokens = NULL;
+		if (shell_loop_helper(input, data) != 0)
+			return (-1);
 	}
 	return (0);
 }

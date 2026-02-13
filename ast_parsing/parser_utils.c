@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/06 13:45:10 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/10 12:15:38 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/12 10:09:33 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,17 @@ t_node	*create_ast_node(t_node_type type)
 	ft_memset(new, 0, sizeof(t_node));
 	new->node_type = type;
 	return (new);
+}
+
+t_redir_node	*create_redir_node(t_redir_type type)
+{
+	t_redir_node	*node;
+
+	node = ft_calloc(1, sizeof(t_redir_node));
+	if (!node)
+		return (NULL);
+	node->type = type;
+	return (node);
 }
 
 void	free_args(char **argv)
@@ -42,27 +53,24 @@ void	free_args(char **argv)
 
 void	free_redir_node(t_redir_node *node)
 {
-	t_redir_node	*tmp;
+	t_redir_node	*cur;
+	t_redir_node	*next;
 
 	if (!node)
 		return ;
-	while (node)
+	cur = node;
+	next = NULL;
+	while (cur)
 	{
-		tmp = node->next;
-		if (node->filename)
+		next = cur->next;
+		if (cur->filename)
 		{
-			free(node->filename);
-			node->filename = NULL;
+			free(cur->filename);
+			cur->filename = NULL;
 		}
-		if (node->next)
-		{
-			free(node->next);
-			node->next = NULL;
-		}
-		free(node);
-		node = tmp;
+		free(cur);
+		cur = next;
 	}
-	node = NULL;
 }
 
 void	free_ast_node(t_node *ast)
@@ -72,7 +80,7 @@ void	free_ast_node(t_node *ast)
 	if (ast->node_type == NODE_CMD)
 	{
 		free_args(ast->command.argv);
-		free_env(ast->command.env);
+		/*free_env(ast->command.env);*/ // free_env independant de free_ast
 		free_redir_node(ast->command.redir);
 	}
 	else if (ast->node_type == NODE_PIPE)
