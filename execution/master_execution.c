@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   master_execution.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 14:15:59 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 13:56:50 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/14 10:40:28 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,18 @@ static int	exec_or(t_node *node, t_minishell *data)
 
 int	executor(t_node *node, t_minishell *data)
 {
+	char	*path;
+
+	if (node == NULL)
+		return (0);
 	if (node->node_type == NODE_CMD)
 	{
 		if (check_for_built_in(node))
 			return (built_in_exec(node, data));
+		path = find_path(node->command.argv[0], data->env);
+		if (path == NULL)
+			return (0);
+		free(path);
 		return (exec_cmd(node, data));
 	}
 	if (node->node_type == NODE_PIPE)

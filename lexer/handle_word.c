@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:04:34 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 21:31:14 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/15 14:15:53 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,29 +20,25 @@ int	handle_quotes(char *input, t_token **list)
 	t_token				*new;
 
 	len = 1;
-	token_type = (input[0] == '\'') * SINGLE_QUOTE + (input[0] == '"')
-			* DOUBLE_QUOTE;
+	token_type = (input[0] == '\'') * SINGLE_QUOTE \
+	+ (input[0] == '"') * DOUBLE_QUOTE;
 	if (token_type == 0)
 		return (-1);
 	while (input[len] && input[len] != '"' && input[len] != '\'')
 		len++;
 	if (len == 0)
 		return (len);
-	if (input[len] == 0)
-		return (-1);
-	if (input[len] == '\'' && token_type == DOUBLE_QUOTE)
-		return (-1);
-	if (input[len] == '"' && token_type == SINGLE_QUOTE)
+	if (input[len] == 0 || (input[len] == '\'' && token_type == DOUBLE_QUOTE) \
+	|| (input[len] == '"' && token_type == SINGLE_QUOTE))
 		return (-1);
 	word = ft_substr(input, 0, len);
 	if (!word)
 		return (0);
 	new = create_token(word, token_type);
-	free(word);
 	if (!new)
-		return (0);
+		return (free(word), 0);
 	token_add_back(new, list);
-	return (len + 1);
+	return (free(word), len + 1);
 }
 
 int	handle_cmd_or_arg(char *input, t_token **list)

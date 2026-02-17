@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 15:52:21 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/10 15:07:22 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/17 12:22:46 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,6 @@ static int	open_redir_file(t_redir_node *redir)
 	if (redir->type == REDIR_APPEND)
 		return (open(redir->filename, O_WRONLY | O_CREAT | O_APPEND, 0644));
 	return (-1);
-
 }
 
 int	handle_redir_heredoc(t_redir_node *redir)

@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/04 15:28:26 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 17:05:25 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/17 11:20:34 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ char	*extract_key(char *str)
 
 	i = 0;
 	if (str[i] == '?')
-		return (ft_substr(str, 0, 1));
+		return (ft_strdup("?"));
 	while (ft_isalnum(str[i]) || str[i] == '_')
 		i++;
 	return (ft_substr(str, 0, i));

@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 15:54:17 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 11:43:41 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/17 12:21:05 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ static int	export_the_arg(char *argv, t_minishell *data)
 	while (argv[i] && argv[i] != '=')
 		i++;
 	tmp_key = ft_substr(argv, 0, i);
-
 	if (!is_key_ok(tmp_key))
 		return (printf("export: '%s': not a valid identifier", tmp_key),
 			free(tmp_key), 1);
@@ -107,7 +106,6 @@ void	sort_tab(char **envp)
 	print_tab(envp);
 	free_args(envp);
 }
-
 
 int	ft_export(t_node *node, t_minishell *data)
 {

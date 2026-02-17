@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 14:32:23 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 18:05:14 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/16 14:58:34 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,10 @@ static int	replace_wildcard(t_token *token, t_token **tmp)
 	while (entry)
 	{
 		if (entry->d_name[0] == '.' && pattern[0] != '.')
+		{
+			entry = readdir(directory);
 			continue ;
+		}
 		if (match_patern(entry->d_name, pattern))
 		{
 			new = create_token(entry->d_name, CMD_OR_ARG);
@@ -121,14 +124,15 @@ int	expand_wildcard(t_minishell *data)
 {
 	t_token	*current;
 	t_token	*prev;
-	t_token	*next;
+	t_token	*next_token;
 	t_token	*tmp;
+	t_token	*tmp_end;
 
-	tmp = NULL;
 	prev = NULL;
 	current = data->tokens;
 	while (current)
 	{
+		tmp = NULL;
 		if (check_for_wildcard(current))
 		{
 			if (replace_wildcard(current, &tmp) < 0)
@@ -141,10 +145,25 @@ int	expand_wildcard(t_minishell *data)
 			if (!tmp)
 				current->type = CMD_OR_ARG;
 			else
-				
-			//replace current by tmp
+			{
+				next_token = current->next;
+				if (!prev)
+					data->tokens = tmp;
+				else
+					prev->next = tmp;
+				tmp_end = tmp;
+				while (tmp_end->next)
+					tmp_end = tmp_end->next;
+				tmp_end->next = next_token;
+				free(current->value);
+				free(current);
+				prev = tmp_end;
+				current = next_token;
+				continue ;
+			}
 		}
 		prev = current;
 		current = current->next;
 	}
+	return (0);
 }

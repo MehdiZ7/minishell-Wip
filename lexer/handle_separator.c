@@ -6,13 +6,18 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:27:51 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/09 20:46:47 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/15 14:10:53 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include <limits.h>
 
-static int	error_handling(char *input, size_t start, char *grp)
+int		handle_separator_vertical_bar(char *input, t_token **list);
+int		handle_separator_comp_sign(char *input, t_token **list);
+int		handle_separator_comp_sign2(char *input, t_token **list);
+
+int	error_handling(char *input, size_t start, char *grp)
 {
 	if (ft_first_char_not_ingroup(input, start, " \t\f\v") == 0)
 	{
@@ -32,7 +37,7 @@ static int	error_handling(char *input, size_t start, char *grp)
 	return (0);
 }
 
-static int	extract_sep(t_token **list, char *value, t_token_type type, int len)
+int	extract_sep(t_token **list, char *value, t_token_type type, int len)
 {
 	t_token	*new;
 
@@ -43,7 +48,7 @@ static int	extract_sep(t_token **list, char *value, t_token_type type, int len)
 	return (len);
 }
 
-static char	*ft_extract_str(char *input, int *p_len)
+char	*ft_extract_str(char *input, int *p_len)
 {
 	int		i;
 	char	*str;
@@ -65,68 +70,16 @@ static char	*ft_extract_str(char *input, int *p_len)
 
 int	handle_separator(char *input, t_token **list)
 {
-	char	*str;
-	int		len;
+	int	ret;
 
-	if (ft_strncmp(input, "||", 2) == 0)
-	{
-		if (error_handling(input, 2, "&|") == -1)
-			return (-1);
-		return (extract_sep(list, "||", OR, 2));
-	}
-	else if (input[0] == '|')
-	{
-		if (error_handling(input, 1, "&|") == -1)
-			return (-1);
-		return (extract_sep(list, "|", PIPE, 1));
-	}
-	else if (ft_strncmp(input, "<<", 2) == 0)
-	{
-		if (error_handling(input, 2, "><&|") == -1)
-			return (-1);
-		str = ft_extract_str(&input[2], &len);
-		if (str == NULL)
-			return (-1);
-		return (extract_sep(list, str, HEREDOC, 2) + len);
-	}
-	else if (input[0] == '<')
-	{
-		if (error_handling(input, 1, "><&|") == -1)
-			return (-1);
-		str = ft_extract_str(&input[1], &len);
-		if (str == NULL)
-			return (-1);
-		return (extract_sep(list, str, REDIR_IN, 1) + len);
-	}
-	else if (!ft_strncmp(input, ">>", 2))
-	{
-		if (error_handling(input, 2, "><&|") == -1)
-			return (-1);
-		str = ft_extract_str(&input[2], &len);
-		if (str == NULL)
-			return (-1);
-		return (extract_sep(list, str, APPEND, 2) + len);
-	}
-	else if (*input == '>')
-	{
-		if (error_handling(input, 1, "><&|") == -1)
-			return (-1);
-		str = ft_extract_str(&input[1], &len);
-		if (str == NULL)
-			return (-1);
-		return (extract_sep(list, str, REDIR_OUT, 1) + len);
-	}
-	else if (!ft_strncmp(input, "&&", 2))
-	{
-		if (error_handling(input, 2, "<&|") == -1)
-			return (-1);
-		return (extract_sep(list, "&&", AND, 2));
-	}
-	else
-	{
-		ft_putstr_fd("minishell: syntax error near unexpected token `&'\n",
-			STDERR_FILENO);
-		return (-1);
-	}
+	ret = handle_separator_vertical_bar(input, list);
+	if (ret != INT_MAX)
+		return (ret);
+	ret = handle_separator_comp_sign(input, list);
+	if (ret != INT_MAX)
+		return (ret);
+	ret = handle_separator_comp_sign2(input, list);
+	if (ret != INT_MAX)
+		return (ret);
 	return (0);
 }

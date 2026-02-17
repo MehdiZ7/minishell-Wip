@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 17:04:13 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/17 12:12:09 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MINISHELL_H
 
 # include "libft.h"
+# include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
@@ -142,6 +143,16 @@ typedef struct s_minishell
 	int					exit_status;
 }						t_minishell;
 
+typedef struct s_infix_to_postfix
+{
+	t_list		*op_stack;
+	t_list		*ret;
+	t_token		*tok;
+	t_node		*cur_node;
+	t_list		*next_op;
+	t_node_type	node_type;
+	t_node		*new_cmd;
+}				t_infix_to_postfix;
 typedef struct s_wild
 {
 	char			*value;
@@ -150,7 +161,10 @@ typedef struct s_wild
 
 // main utils
 t_minishell				*init_minishell(char **envp);
+void					cleanup_data(t_minishell *data);
 int						shell_loop(t_minishell *data);
+void					cleanup_data(t_minishell *data);
+
 
 // lexer utils
 void					free_token(t_token *list);
@@ -178,6 +192,8 @@ void					env_add_back(t_env *new, t_env **list);
 int						get_expansion(t_minishell *data);
 int						replace_var(t_token *token, char *key, int index,
 							t_minishell *data);
+int						expand_wildcard(t_minishell *data);
+
 
 // Parsing the quotes
 int						remove_quote(t_minishell *data);
@@ -198,19 +214,19 @@ void					free_ast_node(t_node *ast);
 void					free_redir_node(t_redir_node *node);
 void					free_args(char **argv);
 
-//Execution
+// Execution
 int						executor(t_node *node, t_minishell *data);
 
-//Execution utils
+// Execution utils
 int						exec_pipe(t_node *node, t_minishell *data);
 int						exec_cmd(t_node *node, t_minishell *data);
 char					*find_path(char *cmd, t_env *env);
 char					**list_to_tab(t_env *env);
 
-//Heredoc processor
+// Heredoc processor
 int						process_heredoc(t_node *node);
 
-//built_in dispacher
+// built_in dispacher
 int						check_for_built_in(t_node *node);
 int						built_in_exec(t_node *node, t_minishell *data);
 int						ft_echo(t_node *node, t_minishell *data);
@@ -223,8 +239,6 @@ int						ft_cd(t_node *node, t_minishell *data);
 int						ft_export(t_node *node, t_minishell *data);
 int						ft_unset(t_node *node, t_minishell *data);
 
-
-
 // Only for testing ! Don't forger to clear this
 void					print_list(t_token *list);
 void					print_env(t_env *list);
@@ -232,8 +246,6 @@ void					test_exec(t_minishell *data);
 void					test_pipe_exec(t_minishell *data);
 void					check_heredoc(t_minishell *data);
 void					test_builtins(t_minishell *data);
-
-
 
 void					print_list(t_token *list);
 void					print_env(t_env *list);

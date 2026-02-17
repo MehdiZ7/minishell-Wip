@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 15:22:32 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/09 15:49:45 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/17 12:23:11 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,3 @@ int	exec_pipe(t_node *node, t_minishell *data)
 		return (WEXITSTATUS(status));
 	return (0);
 }
-
-
-
