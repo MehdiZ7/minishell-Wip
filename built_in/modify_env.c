@@ -6,11 +6,34 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 16:04:24 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 16:05:08 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/23 12:53:03 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+t_env	*copy_env(t_env *src)
+{
+	t_env	*new_list;
+	t_env	*node;
+
+	new_list = NULL;
+	while (src)
+	{
+		node = malloc(sizeof(t_env));
+		if (!node)
+			return (free_env(new_list), NULL);
+		node->key = ft_strdup(src->key);
+		if (src->value)
+			node->value = ft_strdup(src->value);
+		else
+			node->value = NULL;
+		node->next = NULL;
+		env_add_back(node, &new_list);
+		src = src->next;
+	}
+	return (new_list);
+}
 
 int	update_env(char *key, char *value, t_minishell *data)
 {
@@ -21,11 +44,16 @@ int	update_env(char *key, char *value, t_minishell *data)
 	{
 		if (!ft_strncmp(key, envp->key, ft_strlen(envp->key) + 1))
 		{
-			free(envp->value);
-			envp->value = ft_strdup(value);
-			if (!envp->value)
-				return (-1);
-			return (0);
+			if (value)
+			{
+				free(envp->value);
+				envp->value = ft_strdup(value);
+				if (!envp->value)
+					return (-1);
+				return (0);
+			}
+			else
+				return (0);
 		}
 		envp = envp->next;
 	}
@@ -48,13 +76,14 @@ int	create_new(char *key, char *value, t_minishell *data)
 		free(new);
 		return (-1);
 	}
-	new->value = ft_strdup(value);
-	if (!new->value)
+	if (value)
 	{
-		free(new->key);
-		free(new);
-		return (-1);
+		new->value = ft_strdup(value);
+		if (!new->value)
+			return (free(new->key), free(new), -1);
 	}
+	else
+		new->value = NULL;
 	env_add_back(new, &data->env);
 	return (0);
 }

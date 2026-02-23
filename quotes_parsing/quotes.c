@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 11:47:16 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 17:03:42 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/19 13:27:27 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,8 @@ int	remove_quote(t_minishell *data)
 	token = data->tokens;
 	while (token)
 	{
-		if (token->type == SINGLE_QUOTE || token->type == DOUBLE_QUOTE)
+		if (token->type == SINGLE_QUOTE || token->type == DOUBLE_QUOTE
+			|| token->type == CMD_OR_ARG)
 		{
 			size = get_new_size(token->value);
 			removed = malloc(sizeof(char) * (size + 1));

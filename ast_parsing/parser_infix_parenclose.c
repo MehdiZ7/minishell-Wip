@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/15 16:27:13 by lmilando          #+#    #+#             */
-/*   Updated: 2026/02/15 16:40:32 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/18 20:14:15 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ static void	*null_handler(t_infix_to_postfix *p_i)
 {
 	if ((*p_i).op_stack == NULL)
 	{
-		ft_putstr_fd("minishell: ast failed: unbalanced paren\n", STDERR_FILENO);
+		ft_putstr_fd("minishell: ast failed: unbalanced paren\n",
+			STDERR_FILENO);
 		return (infix_cleanup_all(&(*p_i).ret, &(*p_i).op_stack), NULL);
 	}
 	return ((void *)0x1);
@@ -26,6 +27,8 @@ static void	*null_handler(t_infix_to_postfix *p_i)
 
 void	*infix_paren_close(t_infix_to_postfix *p_i)
 {
+	t_list	*tmp;
+
 	if (null_handler(p_i) == NULL)
 		return (NULL);
 	while ((*p_i).op_stack != NULL)
@@ -45,8 +48,11 @@ void	*infix_paren_close(t_infix_to_postfix *p_i)
 	}
 	else
 	{
+		tmp = (*p_i).op_stack;
 		(*p_i).next_op = (*p_i).op_stack->next;
 		(*p_i).op_stack = (*p_i).next_op;
+		free_ast_node(tmp->content);
+		free(tmp);
 	}
 	(*p_i).tok = (*p_i).tok->next;
 	return ((void *)0x1);

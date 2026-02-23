@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/05 12:32:42 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/17 12:10:59 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/19 13:01:22 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,9 @@ static int	shell_loop_helper(char *input, t_minishell *data)
 	data->ast = create_ast(data);
 	free_token(data->tokens);
 	data->tokens = NULL;
-	print_ast(data->ast, 0);
+	process_heredoc(data->ast);
 	if (data->ast != NULL)
-		executor(data->ast, data);
+		data->exit_status = executor(data->ast, data);
 	free_ast_node(data->ast);
 	data->tokens = NULL;
 	return (0);
@@ -68,9 +68,14 @@ int	shell_loop(t_minishell *data)
 	input = NULL;
 	while (1)
 	{
+		signals_handler();
+		g_sig_val = 0;
 		input = readline("minishell>$ ");
 		if (!input)
-			break ;
+		{
+			ft_putstr_fd("exit\n", STDERR_FILENO);
+			return (-1);
+		}
 		if (input[0] != '\0')
 			add_history(input);
 		else

@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 15:54:17 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/17 12:21:05 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/23 12:52:49 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,94 +33,88 @@ static int	export_the_arg(char *argv, t_minishell *data)
 	int		i;
 	char	*tmp_key;
 	char	*tmp_value;
+	int		status;
 
 	i = 0;
 	while (argv[i] && argv[i] != '=')
 		i++;
 	tmp_key = ft_substr(argv, 0, i);
 	if (!is_key_ok(tmp_key))
-		return (printf("export: '%s': not a valid identifier", tmp_key),
+		return (printf("export: '%s': not a valid identifier\n", tmp_key),
 			free(tmp_key), 1);
 	if (!argv[i])
-		return (free(tmp_key), 0);
-	tmp_value = ft_substr(argv, i + 1, ft_strlen(argv) - i - 1);
-	if (update_env(tmp_key, tmp_value, data) != 0)
-		return (free(tmp_key), free(tmp_value), 1);
+		status = update_env(tmp_key, NULL, data);
+	else
+	{
+		tmp_value = ft_substr(argv, i + 1, ft_strlen(argv) - i - 1);
+		status = update_env(tmp_key, tmp_value, data);
+		free(tmp_value);
+	}
 	free(tmp_key);
-	free(tmp_value);
-	return (0);
+	if (!status)
+		return (0);
+	return (1);
 }
 
-void	print_tab(char **envp)
+void	print_tab(t_env *envp)
 {
-	int		i;
-	int		j;
-	bool	flag;
+	t_env	*current;
 
-	i = 0;
-	while (envp[i])
+	current = envp;
+	while (current)
 	{
-		flag = false;
-		j = 0;
-		printf("declare -x ");
-		while (envp[i][j])
-		{
-			printf("%c", envp[i][j]);
-			if (envp[i][j] == '=' && !flag)
-			{
-				printf("\"");
-				flag = true;
-			}
-			j++;
-		}
-		if (flag == true)
-			printf("\"");
+		printf("declare -x %s", current->key);
+		if (current->value)
+			printf("=\"%s\"", current->value);
 		printf("\n");
-		i++;
+		current = current->next;
 	}
 }
 
-void	sort_tab(char **envp)
+void	sort_env_list(t_env *head)
 {
-	int		i;
-	char	*tmp;
-	int		len;
+	t_env	*current;
+	t_env	*next;
+	char	*tmp_key;
+	char	*tmp_value;
 
-	i = 0;
-	if (!envp)
-		return ;
-	while (envp[i] && envp[i + 1])
+	current = head;
+	while (current)
 	{
-		len = ft_strlen(envp[i]);
-		if ((int)ft_strlen(envp[i + 1]) > len)
-			len = ft_strlen(envp[i + 1]);
-		if (ft_strncmp(envp[i], envp[i + 1], len + 1) > 0)
+		next = current->next;
+		while (next)
 		{
-			tmp = envp[i];
-			envp[i] = envp[i + 1];
-			envp[i + 1] = tmp;
-			i = -1;
+			if (ft_strncmp(current->key, next->key
+					, ft_strlen(current->key) + 1) > 0)
+			{
+				tmp_key = current->key;
+				tmp_value = current->value;
+				current->key = next->key;
+				current->value = next->value;
+				next->key = tmp_key;
+				next->value = tmp_value;
+			}
+			next = next->next;
 		}
-		i++;
+		current = current->next;
 	}
-	print_tab(envp);
-	free_args(envp);
 }
 
 int	ft_export(t_node *node, t_minishell *data)
 {
 	int		i;
 	int		ret;
-	char	**envp;
+	t_env	*envp;
 
 	envp = NULL;
 	i = 1;
 	ret = 0;
 	if (!node->command.argv[1])
 	{
-		if (data->env)
-			envp = list_to_tab(data->env);
-		sort_tab(envp);
+		envp = copy_env(data->env);
+		sort_env_list(envp);
+		print_tab(envp);
+		free_env(envp);
 		data->exit_status = 0;
 		return (0);
 	}

@@ -6,13 +6,13 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 14:32:23 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/16 14:58:34 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/23 13:43:25 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	check_for_wildcard(t_token *token)
+static int	check_for_wildcard(t_token *token, t_token *prev)
 {
 	int		i;
 	bool	in_single;
@@ -27,7 +27,7 @@ static int	check_for_wildcard(t_token *token)
 			in_single = !in_single;
 		else if (token->value[i] == '"' && in_single == false)
 			in_double = !in_double;
-		if (token->value[i] == '*' && !in_single && !in_double)
+		if (token->value[i] == '*' && !in_single && !in_double && prev)
 		{
 			token->type = WILDCARD;
 			return (1);
@@ -37,7 +37,7 @@ static int	check_for_wildcard(t_token *token)
 	return (0);
 }
 
-static bool	match_patern(char *file, char *pattern)
+bool	match_patern(char *file, char *pattern)
 {
 	if (*pattern == '*')
 	{
@@ -61,7 +61,6 @@ static int	replace_wildcard(t_token *token, t_token **tmp)
 	char			*pattern;
 	DIR				*directory;
 	struct dirent	*entry;
-	t_token			*new;
 
 	pattern = remove_wildcard_quote(token->value);
 	if (!pattern)
@@ -72,18 +71,8 @@ static int	replace_wildcard(t_token *token, t_token **tmp)
 	entry = readdir(directory);
 	while (entry)
 	{
-		if (entry->d_name[0] == '.' && pattern[0] != '.')
-		{
-			entry = readdir(directory);
-			continue ;
-		}
-		if (match_patern(entry->d_name, pattern))
-		{
-			new = create_token(entry->d_name, CMD_OR_ARG);
-			if (!new)
-				return (free(pattern), -2);
-			token_add_back(new, tmp);
-		}
+		if (check_entry(entry, tmp, pattern) < 0)
+			return (free(pattern), -2);
 		entry = readdir(directory);
 	}
 	free(pattern);
@@ -105,9 +94,7 @@ void	sort_list(t_token *list)
 		current = head->next;
 		while (current)
 		{
-			len = ft_strlen(head->value);
-			if ((int)ft_strlen(current->value) > len)
-				len = ft_strlen(current->value);
+			len = get_len(head->value, current->value);
 			if (ft_strncmp(current->value, head->value, len + 1) < 0)
 			{
 				tmp = current->value;
@@ -124,43 +111,24 @@ int	expand_wildcard(t_minishell *data)
 {
 	t_token	*current;
 	t_token	*prev;
-	t_token	*next_token;
 	t_token	*tmp;
-	t_token	*tmp_end;
 
-	prev = NULL;
-	current = data->tokens;
+	current = init_wildcards(&prev, data->tokens);
 	while (current)
 	{
 		tmp = NULL;
-		if (check_for_wildcard(current))
+		if (check_for_wildcard(current, prev))
 		{
 			if (replace_wildcard(current, &tmp) < 0)
-			{
-				if (tmp)
-					free_token(tmp);
-				return (1);
-			}
+				return (free_token(tmp), 1);
 			sort_list(tmp);
-			if (!tmp)
-				current->type = CMD_OR_ARG;
-			else
+			if (tmp)
 			{
-				next_token = current->next;
-				if (!prev)
-					data->tokens = tmp;
-				else
-					prev->next = tmp;
-				tmp_end = tmp;
-				while (tmp_end->next)
-					tmp_end = tmp_end->next;
-				tmp_end->next = next_token;
-				free(current->value);
-				free(current);
-				prev = tmp_end;
-				current = next_token;
+				prev = insert_wildcards(&data->tokens, tmp, prev, current);
+				current = prev->next;
 				continue ;
 			}
+			current->type = CMD_OR_ARG;
 		}
 		prev = current;
 		current = current->next;

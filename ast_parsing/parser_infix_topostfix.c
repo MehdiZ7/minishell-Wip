@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:22:37 by lmilando          #+#    #+#             */
-/*   Updated: 2026/02/15 16:41:51 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/18 18:17:41 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ t_list	*infix_to_postfix(t_minishell *minishell)
 	i.cur_node = NULL;
 	while (i.tok != NULL)
 		if (infix_loop(&i, minishell) == NULL)
-			return (NULL);
+			return (infix_cleanup_all(&i.ret, &i.op_stack), NULL);
 	while (i.op_stack != NULL)
 	{
 		i.cur_node = (t_node *)i.op_stack->content;

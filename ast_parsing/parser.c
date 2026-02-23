@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/05 18:47:23 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/15 15:27:27 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/18 20:07:55 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,29 @@ t_token		*create_ast_command(t_node **result, t_token *tok, t_env *envp);
 int	ft_tok_is_op(t_token_type tok_type)
 {
 	if (tok_type == AND || tok_type == OR || tok_type == PAREN_CLOSE
-		|| tok_type == PAREN_CLOSE || tok_type == PIPE)
+		|| tok_type == PIPE)
 		return (1);
 	return (0);
 }
 
+static void	del_noop(void *p)
+{
+	(void)p;
+}
+
 static void	cleanup_ast_on_error(t_list **pile, t_list **postfix)
 {
-	ft_lstclear(pile, (void (*)(void *))free_ast_node);
-	ft_lstclear(postfix, (void (*)(void *))free_ast_node);
+	t_node	*root;
+
+	root = NULL;
+	if (pile && *pile)
+		root = (t_node *)(*pile)->content;
+	if (pile)
+		ft_lstclear(pile, del_noop);
+	if (postfix)
+		ft_lstclear(postfix, del_noop);
+	if (root)
+		free_ast_node(root);
 }
 
 t_node	*pop_stack(t_list **stack)
@@ -51,21 +65,26 @@ t_node	*pop_stack(t_list **stack)
 void	*create_ast_loop(t_list **p_pile, t_list **p_postfix_head,
 		t_list **p_postfix, t_node **p_cur)
 {
+	t_list	*next;
+	t_list	*node_lst;
+
 	while (*p_postfix != NULL)
 	{
-		*p_cur = (t_node *)(*p_postfix)->content;
+		next = (*p_postfix)->next;
+		node_lst = *p_postfix;
+		*p_cur = (t_node *)node_lst->content;
 		if ((*p_cur)->node_type == NODE_CMD)
 		{
 			if (push_stack(p_pile, *p_cur) == NULL)
 				return (cleanup_ast_on_error(p_pile, p_postfix_head), NULL);
 		}
-		else if ((*p_cur)->node_type == NODE_AND || \
-		(*p_cur)->node_type == NODE_OR || (*p_cur)->node_type == NODE_PIPE)
+		else if ((*p_cur)->node_type == NODE_AND
+			|| (*p_cur)->node_type == NODE_OR
+			|| (*p_cur)->node_type == NODE_PIPE)
 		{
 			if (*p_pile == NULL || (*p_pile)->next == NULL)
 			{
-				ft_putstr_fd("minishell: invalid expression 1\n",
-					STDERR_FILENO);
+				ft_putstr_fd("minishell: invalid expression \n", STDERR_FILENO);
 				return (cleanup_ast_on_error(p_pile, p_postfix_head), NULL);
 			}
 			(*p_cur)->bin_op.second = pop_stack(p_pile);
@@ -73,7 +92,8 @@ void	*create_ast_loop(t_list **p_pile, t_list **p_postfix_head,
 			if (push_stack(p_pile, *p_cur) == NULL)
 				return (cleanup_ast_on_error(p_pile, p_postfix_head), NULL);
 		}
-		*p_postfix = (*p_postfix)->next;
+		free(node_lst);
+		*p_postfix = next;
 	}
 	return ((void *)0x1);
 }
@@ -99,6 +119,6 @@ t_node	*create_ast(t_minishell *minishell)
 	}
 	cur = (t_node *)pile->content;
 	ft_lstclear(&pile, NULL);
-	ft_lstclear(&postfix_head, NULL);
+	free(pile);
 	return (cur);
 }

@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/15 16:01:42 by lmilando          #+#    #+#             */
-/*   Updated: 2026/02/15 16:40:02 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/18 18:14:39 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,10 @@ void	infix_cleanup_all(t_list **ret, t_list **op_stack)
 {
 	ft_lstclear(ret, (void (*)(void *))free_ast_node);
 	ft_lstclear(op_stack, (void (*)(void *))free_ast_node);
+	if (ret != NULL)
+		free(*ret);
+	if (op_stack == NULL)
+		free(op_stack);
 }
 
 t_list	*push_stack(t_list **stack, t_node *node)

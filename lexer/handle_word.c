@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:04:34 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/15 14:15:53 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/17 16:01:37 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int	handle_cmd_or_arg(char *input, t_token **list)
 
 	len = 0;
 	while (input[len] && !ft_isspace(input[len]) && !ft_isseparator(input[len])
-		&& input[len] != '(' && input[len] != ')')
+		&& input[len] != '(' && input[len] != ')' && input[len] != '=')
 		len++;
 	if (len == 0)
 		return (len);

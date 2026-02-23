@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:01:10 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/15 15:24:22 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/18 17:40:57 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,10 @@ static void	lexer_helper(char *input, int i, int *p_ret, t_lexer_helper a)
 			*p_ret = 1;
 		}
 	}
+	else if (ft_isalnum(input[i]) && ft_strchr(&input[i], '=') != NULL
+		&& (ft_strchr(&input[i], '=') < ft_strchr(&input[i], ' ')
+			|| ft_strchr(&input[i], ' ') == NULL))
+		*p_ret = handle_env_affectation(input + i, a.p_list);
 	else
 		*p_ret = handle_cmd_or_arg(input + i, a.p_list);
 }

@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:27:51 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/15 14:10:53 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/15 17:03:07 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,9 @@ int	extract_sep(t_token **list, char *value, t_token_type type, int len)
 	t_token	*new;
 
 	new = create_token(value, type);
+	if (type == HEREDOC || type == APPEND || type == REDIR_IN
+		|| type == REDIR_OUT)
+		free(value);
 	if (!new)
 		return (-1);
 	token_add_back(new, list);

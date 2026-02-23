@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/17 12:12:09 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/23 13:36:56 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 # define MINISHELL_H
 
 # include "libft.h"
+# include <curses.h>
+# include <dirent.h>
 # include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
@@ -24,8 +26,6 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
-# include <fcntl.h>
-# include <dirent.h>
 
 typedef enum e_token_type
 {
@@ -81,6 +81,7 @@ typedef struct s_redir_node
 }						t_redir_node;
 
 typedef struct s_env	t_env;
+
 typedef struct s_command
 {
 	int					argc;
@@ -145,26 +146,28 @@ typedef struct s_minishell
 
 typedef struct s_infix_to_postfix
 {
-	t_list		*op_stack;
-	t_list		*ret;
-	t_token		*tok;
-	t_node		*cur_node;
-	t_list		*next_op;
-	t_node_type	node_type;
-	t_node		*new_cmd;
-}				t_infix_to_postfix;
+	t_list				*op_stack;
+	t_list				*ret;
+	t_token				*tok;
+	t_node				*cur_node;
+	t_list				*next_op;
+	t_node_type			node_type;
+	t_node				*new_cmd;
+}						t_infix_to_postfix;
+
 typedef struct s_wild
 {
-	char			*value;
-	struct s_wild	*next;
+	char				*value;
+	struct s_wild		*next;
 }						t_wild;
+
+extern int				g_sig_val;
 
 // main utils
 t_minishell				*init_minishell(char **envp);
 void					cleanup_data(t_minishell *data);
 int						shell_loop(t_minishell *data);
 void					cleanup_data(t_minishell *data);
-
 
 // lexer utils
 void					free_token(t_token *list);
@@ -180,6 +183,7 @@ void					token_add_back(t_token *new, t_token **list);
 int						handle_quotes(char *input, t_token **list);
 int						handle_separator(char *input, t_token **list);
 int						handle_cmd_or_arg(char *input, t_token **list);
+int						handle_env_affectation(char *input, t_token **list);
 
 // env parsing
 t_env					*init_env(char **envp);
@@ -193,12 +197,17 @@ int						get_expansion(t_minishell *data);
 int						replace_var(t_token *token, char *key, int index,
 							t_minishell *data);
 int						expand_wildcard(t_minishell *data);
-
+int						get_len(char *head, char *current);
+bool					match_patern(char *file, char *pattern);
+int						check_entry(struct dirent *entry, t_token **tmp,
+							char *pat);
+t_token					*insert_wildcards(t_token **head, t_token *tmp,
+							t_token *prev, t_token *cur);
+t_token					*init_wildcards(t_token **prev, t_token *head);
 
 // Parsing the quotes
 int						remove_quote(t_minishell *data);
 char					*remove_wildcard_quote(char *str);
-
 
 // Parsing for the abstract syntax tree
 t_node					*create_ast_node(t_node_type type);
@@ -222,6 +231,7 @@ int						exec_pipe(t_node *node, t_minishell *data);
 int						exec_cmd(t_node *node, t_minishell *data);
 char					*find_path(char *cmd, t_env *env);
 char					**list_to_tab(t_env *env);
+int						handle_redir(t_node *node);
 
 // Heredoc processor
 int						process_heredoc(t_node *node);
@@ -238,6 +248,10 @@ int						update_env(char *key, char *value, t_minishell *data);
 int						ft_cd(t_node *node, t_minishell *data);
 int						ft_export(t_node *node, t_minishell *data);
 int						ft_unset(t_node *node, t_minishell *data);
+t_env					*copy_env(t_env *src);
+
+/*Signal*/
+void					signals_handler(void);
 
 // Only for testing ! Don't forger to clear this
 void					print_list(t_token *list);
