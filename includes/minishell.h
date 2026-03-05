@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/27 13:53:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/23 13:36:56 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/04 18:32:47 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,21 @@
 # include "libft.h"
 # include <curses.h>
 # include <dirent.h>
+# include <errno.h>
 # include <fcntl.h>
 # include <readline/history.h>
 # include <readline/readline.h>
 # include <signal.h>
 # include <stdbool.h>
-# include <stdio.h>
 # include <stdlib.h>
+# include <sys/stat.h>
 # include <sys/types.h>
 # include <sys/wait.h>
+# include <termios.h>
 # include <unistd.h>
+# define COMMAND_NOT_FOUND 1
+# define PERMISSION_DENIED 2
+# define IS_A_DIRECTORY 3
 
 typedef enum e_token_type
 {
@@ -92,24 +97,6 @@ typedef struct s_command
 
 typedef struct s_node	t_node;
 
-typedef struct s_and_command
-{
-	t_node				*first;
-	t_node				*second;
-}						t_and_command;
-
-typedef struct s_or_command
-{
-	t_node				*first;
-	t_node				*second;
-}						t_or_command;
-
-typedef struct s_pipe_command
-{
-	t_node				*first;
-	t_node				*second;
-}						t_pipe_command;
-
 typedef struct s_bin_op
 {
 	t_node				*first;
@@ -123,9 +110,6 @@ typedef struct s_node
 	{
 		t_command		command;
 		t_bin_op		bin_op;
-		t_and_command	and_command;
-		t_or_command	or_command;
-		t_pipe_command	pipe_command;
 	};
 }						t_node;
 
@@ -161,12 +145,27 @@ typedef struct s_wild
 	struct s_wild		*next;
 }						t_wild;
 
+typedef struct s_tab_str
+{
+	size_t				cap;
+	size_t				len;
+	int					*is_op;
+	char				**strs;
+}						t_tab_str;
+
+typedef struct s_ttyctx
+{
+	struct termios		saved;
+	int					saved_ok;
+	int					is_tty;
+}						t_ttyctx;
+
 extern int				g_sig_val;
 
 // main utils
 t_minishell				*init_minishell(char **envp);
 void					cleanup_data(t_minishell *data);
-int						shell_loop(t_minishell *data);
+int						shell_loop(t_minishell *data, t_ttyctx *tty);
 void					cleanup_data(t_minishell *data);
 
 // lexer utils
@@ -175,15 +174,21 @@ int						ft_isseparator(const char c);
 int						ft_strlen_without_quotes(char *input, int i);
 char					ft_first_char_not_ingroup(char *str, size_t start,
 							char *grp);
+// lexer helpers
+t_tab_str				*ft_complete_string_treatment(t_env *env,
+							t_tab_str *tmp, int exit_status);
+t_tab_str				*ft_split_like_shell(char *str);
+void					ft_free_tab_str(t_tab_str **p_tab_str);
 
 // lexer
-t_token					*lexer(char *input);
+t_token					*lexer(char *input, t_env *env, int exit_status);
 t_token					*create_token(char *value, t_token_type type);
 void					token_add_back(t_token *new, t_token **list);
 int						handle_quotes(char *input, t_token **list);
 int						handle_separator(char *input, t_token **list);
 int						handle_cmd_or_arg(char *input, t_token **list);
 int						handle_env_affectation(char *input, t_token **list);
+char					*ft_correct_input(char **p_input);
 
 // env parsing
 t_env					*init_env(char **envp);
@@ -229,9 +234,13 @@ int						executor(t_node *node, t_minishell *data);
 // Execution utils
 int						exec_pipe(t_node *node, t_minishell *data);
 int						exec_cmd(t_node *node, t_minishell *data);
-char					*find_path(char *cmd, t_env *env);
+char					*find_path(char *cmd, t_env *env, int *ret);
 char					**list_to_tab(t_env *env);
 int						handle_redir(t_node *node);
+char					*build_cmd_path(char *cmd, char *path);
+void					free_split(char **tab);
+char					*get_env(t_env *env, char *var);
+char					**lst_utils(t_env *env, int *i);
 
 // Heredoc processor
 int						process_heredoc(t_node *node);
@@ -241,7 +250,7 @@ int						check_for_built_in(t_node *node);
 int						built_in_exec(t_node *node, t_minishell *data);
 int						ft_echo(t_node *node, t_minishell *data);
 int						ft_pwd(t_minishell *data);
-int						ft_env(t_minishell *data);
+int						ft_env(t_node *node, t_minishell *data);
 int						ft_exit(t_node *node, t_minishell *data);
 int						create_new(char *key, char *value, t_minishell *data);
 int						update_env(char *key, char *value, t_minishell *data);
@@ -249,9 +258,14 @@ int						ft_cd(t_node *node, t_minishell *data);
 int						ft_export(t_node *node, t_minishell *data);
 int						ft_unset(t_node *node, t_minishell *data);
 t_env					*copy_env(t_env *src);
+void					print_tab(t_env *envp);
 
 /*Signal*/
 void					signals_handler(void);
+int						ttyctx_init(t_ttyctx *ctx);
+int						tty_disable_ctrl_backslash(const t_ttyctx *ctx);
+void					tty_restore(const t_ttyctx *ctx);
+void					sig_int_heredoc(int sig);
 
 // Only for testing ! Don't forger to clear this
 void					print_list(t_token *list);
@@ -265,5 +279,6 @@ void					print_list(t_token *list);
 void					print_env(t_env *list);
 void					print_postfix_list(t_list *postfix, char *str);
 void					print_ast(t_node *node, int depth);
+void					ft_printf_tab_str(t_tab_str *tab);
 
 #endif

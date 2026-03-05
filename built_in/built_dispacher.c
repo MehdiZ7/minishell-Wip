@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 15:09:13 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 11:57:08 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/27 10:40:28 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ int	check_for_built_in(t_node *node)
 	return (0);
 }
 
-int	built_in_exec(t_node *node, t_minishell *data)
+static int	built_in_dispatch(t_node *node, t_minishell *data)
 {
 	char	*cmd;
 
@@ -52,8 +52,32 @@ int	built_in_exec(t_node *node, t_minishell *data)
 	if (!ft_strncmp(cmd, "unset", 6))
 		return (ft_unset(node, data));
 	if (!ft_strncmp(cmd, "env", 4))
-		return (ft_env(data));
+		return (ft_env(node, data));
 	if (!ft_strncmp(cmd, "exit", 5))
 		return (ft_exit(node, data));
 	return (1);
+}
+
+int	built_in_exec(t_node *node, t_minishell *data)
+{
+	int	status;
+	int	saved_stdin;
+	int	saved_stdout;
+
+	saved_stdin = dup(STDIN_FILENO);
+	saved_stdout = dup(STDOUT_FILENO);
+	if (handle_redir(node))
+	{
+		dup2(saved_stdin, STDIN_FILENO);
+		dup2(saved_stdout, STDOUT_FILENO);
+		close(saved_stdin);
+		close(saved_stdout);
+		return (1);
+	}
+	status = built_in_dispatch(node, data);
+	dup2(saved_stdin, STDIN_FILENO);
+	dup2(saved_stdout, STDOUT_FILENO);
+	close(saved_stdin);
+	close(saved_stdout);
+	return (status);
 }

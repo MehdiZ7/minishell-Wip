@@ -1,30 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   ft_not_special_str.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 16:18:30 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/28 23:07:03 by lmilando         ###   ########.fr       */
+/*   Created: 2026/02/22 10:56:19 by lmilando          #+#    #+#             */
+/*   Updated: 2026/02/22 10:56:21 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "first_pass.h"
 
-int	ft_pwd(t_minishell *data)
+int	ft_not_special_str(t_tab_str **p_tab_strs, char *str)
 {
-	char	*path;
-
-	path = getcwd(NULL, 0);
-	if (!path)
-	{
-		data->exit_status = 1;
-		perror("pwd: ");
-		return (1);
-	}
-	ft_printf("%s\n", path);
-	free(path);
-	data->exit_status = 0;
-	return (0);
+	if (ft_next_env_not_in_simple_quote(str, 0) != -1)
+		return (0);
+	if (ft_append_str_to_tab_str(p_tab_strs, str) == 0)
+		return (-1);
+	return (1);
 }

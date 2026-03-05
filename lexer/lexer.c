@@ -6,108 +6,119 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 13:01:10 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/18 17:40:57 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/28 15:16:52 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-typedef struct s_lexer_helper
+static t_token_type	get_token_type(char *value)
 {
-	t_token	**p_tok;
-	t_token	**p_list;
-}			t_lexer_helper;
-
-t_token	*create_token(char *value, t_token_type type)
-{
-	t_token	*new;
-
-	new = malloc(sizeof(t_token));
-	if (!new)
-		return (NULL);
-	new->value = ft_strdup(value);
-	if (!new->value)
-	{
-		free(new);
-		return (NULL);
-	}
-	new->type = type;
-	new->next = NULL;
-	return (new);
+	if (ft_strncmp(value, "&&", 2) == 0)
+		return (AND);
+	if (ft_strncmp(value, "||", 2) == 0)
+		return (OR);
+	if (ft_strncmp(value, "|", 1) == 0)
+		return (PIPE);
+	if (ft_strncmp(value, "(", 1) == 0)
+		return (PAREN_OPEN);
+	if (ft_strncmp(value, ")", 1) == 0)
+		return (PAREN_CLOSE);
+	if (ft_strncmp(value, "<<", 2) == 0)
+		return (HEREDOC);
+	if (value[0] == '<')
+		return (REDIR_IN);
+	if (ft_strncmp(value, ">>", 2) == 0)
+		return (APPEND);
+	if (value[0] == '>')
+		return (REDIR_OUT);
+	if (ft_strchr(value, '*') != NULL)
+		return (WILDCARD);
+	return (CMD_OR_ARG);
 }
 
-void	token_add_back(t_token *new, t_token **list)
+static void	free_token_list(t_token *head)
 {
 	t_token	*tmp;
 
-	if (!list || !new)
-		return ;
-	if (!*list)
+	while (head)
 	{
-		*list = new;
-		return ;
+		tmp = head;
+		head = head->next;
+		free(tmp->value);
+		free(tmp);
 	}
-	tmp = *list;
-	while (tmp->next)
-		tmp = tmp->next;
-	tmp->next = new;
 }
 
-static void	lexer_helper(char *input, int i, int *p_ret, t_lexer_helper a)
+static t_token	*append_token_helper(t_token **head, t_token **tail,
+		char *value, t_token_type type)
 {
-	if (input[i] == '(')
+	t_token	*new_token;
+
+	new_token = create_token(value, type);
+	if (new_token == NULL)
+		return (free_token_list(*head), NULL);
+	if (*head == NULL)
 	{
-		*(a.p_tok) = create_token("(", PAREN_OPEN);
-		if (*(a.p_tok) == NULL)
-			*p_ret = -1;
-		else
-		{
-			token_add_back(*(a.p_tok), a.p_list);
-			*p_ret = 1;
-		}
+		*head = new_token;
+		*tail = new_token;
 	}
-	else if (input[i] == ')')
-	{
-		*(a.p_tok) = create_token(")", PAREN_CLOSE);
-		if (*(a.p_tok) == NULL)
-			*p_ret = -1;
-		else
-		{
-			token_add_back(*(a.p_tok), a.p_list);
-			*p_ret = 1;
-		}
-	}
-	else if (ft_isalnum(input[i]) && ft_strchr(&input[i], '=') != NULL
-		&& (ft_strchr(&input[i], '=') < ft_strchr(&input[i], ' ')
-			|| ft_strchr(&input[i], ' ') == NULL))
-		*p_ret = handle_env_affectation(input + i, a.p_list);
 	else
-		*p_ret = handle_cmd_or_arg(input + i, a.p_list);
+	{
+		(*tail)->next = new_token;
+		*tail = new_token;
+	}
+	return (new_token);
 }
 
-t_token	*lexer(char *input)
+static t_token	*append_token(t_token **head, t_token **tail, char *value,
+		int is_op)
 {
-	int		i;
-	int		ret;
-	t_token	*list;
-	t_token	*tok;
+	t_token_type	type;
+	size_t			i;
 
-	ret = 0;
+	type = CMD_OR_ARG;
 	i = 0;
-	list = NULL;
-	while (input[i])
+	if (is_op)
 	{
-		while (ft_isspace(input[i]))
+		type = get_token_type(value);
+		if (type == APPEND || type == HEREDOC)
+			i += 2;
+		else if (type == REDIR_IN || type == REDIR_OUT)
 			i++;
-		if (ft_isseparator(input[i]))
-			ret = handle_separator(input + i, &list);
-		else if (input[i] == '\"' || input[i] == '\'')
-			ret = handle_quotes(input + i, &list);
-		else
-			lexer_helper(input, i, &ret, (t_lexer_helper){&tok, &list});
-		if (ret < 0)
-			return (free_token(list), NULL);
-		i += ret;
+		if (type == APPEND || type == HEREDOC || type == REDIR_IN
+			|| type == REDIR_OUT)
+		{
+			while (value[i] == ' ')
+				i++;
+		}
 	}
-	return (list);
+	return (append_token_helper(head, tail, &value[i], type));
+}
+
+t_token	*lexer(char *input, t_env *env, int exit_status)
+{
+	t_tab_str	*temp_tokens;
+	t_token		*head;
+	t_token		*tail;
+	size_t		i;
+	t_tab_str	*tokens;
+
+	temp_tokens = ft_split_like_shell(input);
+	if (temp_tokens == NULL)
+		return (NULL);
+	head = NULL;
+	tail = NULL;
+	i = 0;
+	tokens = ft_complete_string_treatment(env, temp_tokens, exit_status);
+	ft_free_tab_str(&temp_tokens);
+	while (i < tokens->len)
+	{
+		if (append_token(&head, &tail, tokens->strs[i],
+				tokens->is_op[i]) == NULL)
+			return (ft_free_tab_str(&tokens), NULL);
+		i++;
+	}
+	ft_free_tab_str(&tokens);
+	return (head);
 }

@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 15:54:17 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/23 12:52:49 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/04 14:21:57 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,13 @@ static int	is_key_ok(char *key)
 	return (1);
 }
 
+static void	print_error(char *argv)
+{
+	ft_putstr_fd("minishell: export: `", STDERR_FILENO);
+	ft_putstr_fd(argv, STDERR_FILENO);
+	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+}
+
 static int	export_the_arg(char *argv, t_minishell *data)
 {
 	int		i;
@@ -40,8 +47,7 @@ static int	export_the_arg(char *argv, t_minishell *data)
 		i++;
 	tmp_key = ft_substr(argv, 0, i);
 	if (!is_key_ok(tmp_key))
-		return (printf("export: '%s': not a valid identifier\n", tmp_key),
-			free(tmp_key), 1);
+		return (print_error(argv), free(tmp_key), 1);
 	if (!argv[i])
 		status = update_env(tmp_key, NULL, data);
 	else
@@ -54,21 +60,6 @@ static int	export_the_arg(char *argv, t_minishell *data)
 	if (!status)
 		return (0);
 	return (1);
-}
-
-void	print_tab(t_env *envp)
-{
-	t_env	*current;
-
-	current = envp;
-	while (current)
-	{
-		printf("declare -x %s", current->key);
-		if (current->value)
-			printf("=\"%s\"", current->value);
-		printf("\n");
-		current = current->next;
-	}
 }
 
 void	sort_env_list(t_env *head)
@@ -84,8 +75,8 @@ void	sort_env_list(t_env *head)
 		next = current->next;
 		while (next)
 		{
-			if (ft_strncmp(current->key, next->key
-					, ft_strlen(current->key) + 1) > 0)
+			if (ft_strncmp(current->key, next->key, ft_strlen(current->key)
+					+ 1) > 0)
 			{
 				tmp_key = current->key;
 				tmp_value = current->value;

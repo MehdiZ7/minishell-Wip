@@ -6,38 +6,48 @@
 #    By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/01/27 11:34:03 by mzouhir           #+#    #+#              #
-#    Updated: 2026/02/23 13:35:59 by mzouhir          ###   ########.fr        #
+#    Updated: 2026/03/04 18:58:55 by mzouhir          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME=minishell
 SRCS= 	main.c main_utils.c \
-		lexer/lexer.c lexer/lexer_utils.c lexer/handle_word.c lexer/handle_separator.c \
-		lexer/handle_separator_helper.c lexer/handle_env_affectation.c\
+		lexer/lexer.c lexer/lexer_utils.c lexer/lexer_copy.c\
+		lexer_helper/ft_append_str_to_tab_str.c \
+		lexer_helper/ft_grow_tab_str.c   lexer_helper/ft_printf_tab_str.c \
+		lexer_helper/ft_split_like_shell_utils.c \
+		lexer_helper/ft_complete_string_treatment.c  lexer_helper/ft_in_quotes.c \
+		lexer_helper/ft_remove_quotes.c lexer_helper/ft_strlen_env.c\
+		lexer_helper/ft_free_tab_str.c  lexer_helper/ft_next_env_not_in_simple_quote.c \
+		lexer_helper/ft_replace_env.c lexer_helper/ft_grow_last_str_of_tab_str.c  \
+		lexer_helper/ft_not_special_str.c  lexer_helper/ft_split_like_shell.c\
 		env_parsing/env.c env_parsing/env_utils.c \
 		expansion/expansion.c  expansion/expansion_utils.c\
 		expansion/wildcards_utils.c expansion/wildcards.c \
-		quotes_parsing/quotes.c\
+		expansion/remove_wildcard_quote.c \
 		ast_parsing/parser.c  ast_parsing/parser_utils.c ast_parsing/print_parser.c ast_parsing/parser_infix_topostfix.c \
 		ast_parsing/parser_create_ast_command.c ast_parsing/parser_infix_helper.c\
 		ast_parsing/parser_infix_parenclose.c \
+		ast_parsing/parser_create_ast_loop.c \
 		execution/master_execution.c execution/pipe_exec.c \
 		execution/cmd_exec.c execution/get_path.c execution/heredoc.c execution/handle_redir.c \
+		execution/get_path_utils.c execution/get_path_utils2.c\
 		built_in/built_dispacher.c built_in/ft_echo.c built_in/ft_pwd.c built_in/ft_env.c built_in/ft_exit.c built_in/ft_cd.c \
 		built_in/modify_env.c built_in/ft_export.c built_in/ft_unset.c \
-		signals/signals.c
+		signals/signals.c signals/terminal.c \
+		syntax_validation/ft_correct_input.c \
+		syntax_validation/syntax_validation_utils.c
 
-SRCS+= testing/check_token.c testing/check_ast.c
 OBJS= ${addprefix ${OBJS_DIR}, ${SRCS:.c=.o}}
 OBJS_DIR= Objs/
 LIBFT_DIR = Libft
 LIBFT= ${LIBFT_DIR}/libft.a
 CC= cc
-SAN=-fsanitize=address,undefined
-CBUG= -O0 -ggdb
+#SAN=-fsanitize=address,undefined
+#CBUG= -O0 -ggdb
 #COPT= -g3
-CFLAGS= -Wall -Werror -Wextra $(COPT) $(CBUG) $(SAN)
+CFLAGS= -Wall -Wextra -Werror
 LINKERS= -lreadline -lcurses
 INCLUDES= -I includes -I ${LIBFT_DIR}
 
@@ -61,4 +71,6 @@ fclean: clean
 	${MAKE} -C ${LIBFT_DIR} fclean
 re: fclean all
 
-.PHONY: all clean fclean re
+bonus: all
+
+.PHONY: all clean fclean re bonus

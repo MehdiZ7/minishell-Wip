@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 11:11:59 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/18 16:34:39 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/03/03 14:30:01 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-extern int g_sig_val;
+extern int	g_sig_val;
 
 void	cleanup_data(t_minishell *data)
 {
@@ -20,32 +20,34 @@ void	cleanup_data(t_minishell *data)
 	data->env = NULL;
 	free_token(data->tokens);
 	data->tokens = NULL;
-	// free_ast TODO
 	rl_clear_history();
 }
 
 void	clean_exit(t_minishell *data)
 {
+	int	status;
+
+	status = data->exit_status;
 	cleanup_data(data);
 	free(data);
-	exit(1);
+	exit(status);
 }
 
 int	main(int ac, char **av, char **envp)
 {
 	t_minishell	*data;
+	t_ttyctx	tty;
 
 	(void)ac;
 	(void)av;
+	if (ttyctx_init(&tty) != 0)
+		return (EXIT_FAILURE);
+	rl_catch_signals = 0;
 	data = init_minishell(envp);
 	if (!data)
 		return (1);
-	if (shell_loop(data) == -1)
+	if (shell_loop(data, &tty) == -1)
 		clean_exit(data);
-	// test_exec(data);
-	// test_pipe_exec(data);
-	// check_heredoc(data);
-	// test_builtins(data);
 	cleanup_data(data);
 	free(data);
 	return (0);

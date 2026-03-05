@@ -6,11 +6,11 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/05 18:47:23 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/18 20:07:55 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/28 13:21:53 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "ast_parsing.h"
 
 void		ft_lstadd_back_redir(t_redir_node **list, t_redir_node *elt);
 int			cmd_node_is_arg(t_token *cur_tok, t_node *cmd_node, int *p_j);
@@ -33,7 +33,7 @@ static void	del_noop(void *p)
 	(void)p;
 }
 
-static void	cleanup_ast_on_error(t_list **pile, t_list **postfix)
+void	cleanup_ast_on_error(t_list **pile, t_list **postfix)
 {
 	t_node	*root;
 
@@ -43,7 +43,7 @@ static void	cleanup_ast_on_error(t_list **pile, t_list **postfix)
 	if (pile)
 		ft_lstclear(pile, del_noop);
 	if (postfix)
-		ft_lstclear(postfix, del_noop);
+		ft_lstclear(postfix, (void (*)(void *))free_ast_node);
 	if (root)
 		free_ast_node(root);
 }
@@ -62,42 +62,6 @@ t_node	*pop_stack(t_list **stack)
 	return (node);
 }
 
-void	*create_ast_loop(t_list **p_pile, t_list **p_postfix_head,
-		t_list **p_postfix, t_node **p_cur)
-{
-	t_list	*next;
-	t_list	*node_lst;
-
-	while (*p_postfix != NULL)
-	{
-		next = (*p_postfix)->next;
-		node_lst = *p_postfix;
-		*p_cur = (t_node *)node_lst->content;
-		if ((*p_cur)->node_type == NODE_CMD)
-		{
-			if (push_stack(p_pile, *p_cur) == NULL)
-				return (cleanup_ast_on_error(p_pile, p_postfix_head), NULL);
-		}
-		else if ((*p_cur)->node_type == NODE_AND
-			|| (*p_cur)->node_type == NODE_OR
-			|| (*p_cur)->node_type == NODE_PIPE)
-		{
-			if (*p_pile == NULL || (*p_pile)->next == NULL)
-			{
-				ft_putstr_fd("minishell: invalid expression \n", STDERR_FILENO);
-				return (cleanup_ast_on_error(p_pile, p_postfix_head), NULL);
-			}
-			(*p_cur)->bin_op.second = pop_stack(p_pile);
-			(*p_cur)->bin_op.first = pop_stack(p_pile);
-			if (push_stack(p_pile, *p_cur) == NULL)
-				return (cleanup_ast_on_error(p_pile, p_postfix_head), NULL);
-		}
-		free(node_lst);
-		*p_postfix = next;
-	}
-	return ((void *)0x1);
-}
-
 t_node	*create_ast(t_minishell *minishell)
 {
 	t_list	*postfix;
@@ -110,11 +74,11 @@ t_node	*create_ast(t_minishell *minishell)
 		return (NULL);
 	postfix_head = postfix;
 	pile = NULL;
-	if (create_ast_loop(&pile, &postfix_head, &postfix, &cur) == NULL)
+	if (create_ast_loop(&pile, &postfix, &cur) == NULL)
 		return (NULL);
 	if (pile == NULL || pile->next != NULL)
 	{
-		ft_putstr_fd("minishell: invalid expression 2\n", STDERR_FILENO);
+		ft_putstr_fd("minishell: invalid expression \n", STDERR_FILENO);
 		return (cleanup_ast_on_error(&pile, &postfix_head), NULL);
 	}
 	cur = (t_node *)pile->content;

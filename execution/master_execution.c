@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   master_execution.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 14:15:59 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/19 13:04:19 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/25 12:21:51 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@ static int	exec_and(t_node *node, t_minishell *data)
 {
 	int	status;
 
-	status = executor(node->and_command.first, data);
+	status = executor(node->bin_op.first, data);
 	if (status == 0)
-		return (executor(node->and_command.second, data));
+		return (executor(node->bin_op.second, data));
 	return (status);
 }
 
@@ -26,9 +26,9 @@ static int	exec_or(t_node *node, t_minishell *data)
 {
 	int	status;
 
-	status = executor(node->or_command.first, data);
+	status = executor(node->bin_op.first, data);
 	if (status != 0)
-		return (executor(node->or_command.second, data));
+		return (executor(node->bin_op.second, data));
 	return (status);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 15:22:32 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/17 12:23:11 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/04 11:47:37 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,16 @@ void	pipe1(int *fd, t_node *node, t_minishell *data)
 {
 	int	exit_code;
 
-	dup2(fd[1], 1);
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	if (dup2(fd[1], 1) == -1)
+	{
+		perror("dup2");
+		exit(1);
+	}
 	close(fd[1]);
 	close(fd[0]);
-	exit_code = executor(node->pipe_command.first, data);
+	exit_code = executor(node->bin_op.first, data);
 	exit(exit_code);
 }
 
@@ -27,11 +33,32 @@ void	pipe2(int *fd, t_node *node, t_minishell *data)
 {
 	int	exit_code;
 
-	dup2(fd[0], 0);
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
+	if (dup2(fd[0], 0) == -1)
+	{
+		perror("dup2");
+		exit(1);
+	}
 	close(fd[0]);
 	close(fd[1]);
-	exit_code = executor(node->pipe_command.second, data);
+	exit_code = executor(node->bin_op.second, data);
 	exit(exit_code);
+}
+
+static int	return_status(int status)
+{
+	if (WIFEXITED(status))
+		return (WEXITSTATUS(status));
+	else if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGINT)
+			ft_putstr_fd("\n", 2);
+		else if (WTERMSIG(status) == SIGQUIT)
+			ft_putstr_fd("Quit (core dumped)\n", 2);
+		return (128 + WTERMSIG(status));
+	}
+	return (0);
 }
 
 int	exec_pipe(t_node *node, t_minishell *data)
@@ -58,7 +85,5 @@ int	exec_pipe(t_node *node, t_minishell *data)
 	close(fd[1]);
 	waitpid(pid1, NULL, 0);
 	waitpid(pid2, &status, 0);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	return (0);
+	return (return_status(status));
 }

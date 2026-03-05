@@ -1,30 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   get_path_utils2.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 16:18:30 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/28 23:07:03 by lmilando         ###   ########.fr       */
+/*   Created: 2026/03/04 18:24:38 by mzouhir           #+#    #+#             */
+/*   Updated: 2026/03/04 18:30:49 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	ft_pwd(t_minishell *data)
+char	**lst_utils(t_env *env, int *i)
 {
-	char	*path;
+	t_env	*tmp;
+	char	**envp;
 
-	path = getcwd(NULL, 0);
-	if (!path)
+	*i = 0;
+	tmp = env;
+	while (tmp)
 	{
-		data->exit_status = 1;
-		perror("pwd: ");
-		return (1);
+		(*i)++;
+		tmp = tmp->next;
 	}
-	ft_printf("%s\n", path);
-	free(path);
-	data->exit_status = 0;
-	return (0);
+	envp = ft_calloc(sizeof(char *), (*i + 1));
+	if (!envp)
+		return (NULL);
+	return (envp);
 }

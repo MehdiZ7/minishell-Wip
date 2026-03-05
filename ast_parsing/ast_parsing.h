@@ -1,30 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   ast_parsing.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 16:18:30 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/28 23:07:03 by lmilando         ###   ########.fr       */
+/*   Created: 2026/02/28 13:10:19 by lmilando          #+#    #+#             */
+/*   Updated: 2026/02/28 13:16:10 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#ifndef AST_PARSING_H
+# define AST_PARSING_H
+# include "minishell.h"
 
-int	ft_pwd(t_minishell *data)
-{
-	char	*path;
-
-	path = getcwd(NULL, 0);
-	if (!path)
-	{
-		data->exit_status = 1;
-		perror("pwd: ");
-		return (1);
-	}
-	ft_printf("%s\n", path);
-	free(path);
-	data->exit_status = 0;
-	return (0);
-}
+void	cleanup_ast_on_error(t_list **pile, t_list **postfix);
+t_node	*pop_stack(t_list **stack);
+void	*create_ast_loop(t_list **p_pile, t_list **p_postfix, t_node **p_cur);
+#endif

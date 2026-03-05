@@ -6,101 +6,100 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 17:01:07 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/13 11:55:14 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/04 13:35:40 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-char	**list_to_tab(t_env *env)
+static char	*find_absolute_path(char *cmd, int *ret)
 {
-	char	**envp;
-	int		i;
-	t_env	*tmp;
-	char	*tmp_key;
+	struct stat	stat_buf;
 
-	tmp = env;
-	i = 0;
-	while (tmp)
+	lstat(cmd, &stat_buf);
+	if (S_ISDIR(stat_buf.st_mode) == 1)
 	{
-		i++;
-		tmp = tmp->next;
-	}
-	envp = malloc(sizeof(char *) * (i + 1));
-	if (!envp)
+		*ret = IS_A_DIRECTORY;
 		return (NULL);
-	i = 0;
-	while (env)
-	{
-		tmp_key = ft_strjoin(env->key, "=");
-		envp[i++] = ft_strjoin(tmp_key, env->value);
-		free(tmp_key);
-		env = env->next;
 	}
-	envp[i] = NULL;
-	return (envp);
-}
-
-char	*get_env(t_env *env)
-{
-	while (env)
-	{
-		if (!strncmp(env->key, "PATH", 5))
-			return (env->value);
-		env = env->next;
-	}
+	if (access(cmd, F_OK | X_OK) == 0)
+		return (cmd);
 	return (NULL);
 }
 
-char	*build_cmd_path(char *cmd, char *path)
+static char	*find_relative_path(char *cmd, t_env *env, int *ret)
 {
-	char	*cmd_path;
-	char	*tmp;
+	char		*env_path;
+	char		*cmd_path;
+	struct stat	stat_buf;
 
-	tmp = ft_strjoin(path, "/");
-	cmd_path = ft_strjoin(tmp, cmd);
-	free(tmp);
-	return (cmd_path);
+	*ret = COMMAND_NOT_FOUND;
+	env_path = get_env(env, "PWD");
+	if (!env_path)
+		return (NULL);
+	cmd_path = ft_strjoin(env_path, &cmd[1]);
+	free(env_path);
+	if (cmd_path == NULL)
+		return (NULL);
+	if (access(cmd_path, F_OK | X_OK) == 0)
+	{
+		*ret = 0;
+		return (cmd_path);
+	}
+	else if (access(cmd_path, F_OK) == 0)
+		*ret = PERMISSION_DENIED;
+	lstat(cmd, &stat_buf);
+	if (S_ISDIR(stat_buf.st_mode) == 1 && *ret == 0)
+		*ret = IS_A_DIRECTORY;
+	free(cmd_path);
+	return (NULL);
 }
 
-void	free_split(char **tab)
+static char	*find_path_loop(char **path, int i, char *cmd, int *ret)
 {
-	int	i;
+	char		*cmd_path;
+	struct stat	stat_buf;
 
-	i = 0;
-	while (tab[i])
+	cmd_path = build_cmd_path(cmd, path[i]);
+	if (access(cmd_path, F_OK | X_OK) == 0)
 	{
-		free(tab[i]);
-		i++;
+		*ret = 0;
+		return (free_split(path), cmd_path);
 	}
-	free(tab);
+	else if (access(cmd_path, F_OK) == 0)
+		*ret = PERMISSION_DENIED;
+	lstat(cmd, &stat_buf);
+	if (S_ISDIR(stat_buf.st_mode) == 1 && *ret == 0)
+		*ret = IS_A_DIRECTORY;
+	free(cmd_path);
+	return ((void *)0x1);
 }
 
-char	*find_path(char *cmd, t_env *env)
+char	*find_path(char *cmd, t_env *env, int *ret)
 {
-	char	*cmd_path;
-	char	*env_path;
-	char	**path;
-	int		i;
+	char		*cmd_path;
+	char		*env_path;
+	char		**path;
+	int			i;
 
 	i = 0;
-	if (ft_strchr(cmd, '/'))
-	{
-		if (access(cmd, F_OK | X_OK) == 0)
-			return (cmd);
-	}
-	env_path = get_env(env);
+	if (cmd[0] == '/')
+		return (find_absolute_path(cmd, ret));
+	if (ft_strncmp(cmd, "./", 2) == 0)
+		return (find_relative_path(cmd, env, ret));
+	*ret = COMMAND_NOT_FOUND;
+	env_path = get_env(env, "PATH");
 	if (!env_path)
 		return (NULL);
 	path = ft_split(env_path, ':');
+	if (!path)
+		return (NULL);
 	while (path[i])
 	{
-		cmd_path = build_cmd_path(cmd, path[i]);
-		if (access(cmd_path, F_OK | X_OK) == 0)
-			return (free_split(path), cmd_path);
-		free(cmd_path);
+		cmd_path = find_path_loop(path, i, cmd, ret);
+		if (cmd_path != (void *)0x1)
+			return (cmd_path);
 		i++;
 	}
-	free_split(path);
-	return (NULL);
+	return (free_split(path), NULL);
 }

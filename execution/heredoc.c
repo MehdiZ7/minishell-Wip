@@ -6,19 +6,34 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 13:01:32 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/17 14:49:25 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/04 12:33:38 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	heredoc_loop(int fd, t_redir_node *redir)
+extern int	g_sig_val;
+
+static void	restore_stdin(int saved_fd, char *line)
+{
+	dup2(saved_fd, STDIN_FILENO);
+	close(saved_fd);
+	if (line)
+		free(line);
+}
+
+static int	heredoc_loop(int fd, t_redir_node *redir)
 {
 	char	*line;
+	int		saved_fd;
 
+	saved_fd = dup(STDIN_FILENO);
+	signal(SIGINT, sig_int_heredoc);
 	while (1)
 	{
 		line = readline("heredoc> ");
+		if (g_sig_val == 130)
+			return (restore_stdin(saved_fd, line), 1);
 		if (!line)
 		{
 			printf("here-document delimited by end-of-file\n");
@@ -33,6 +48,7 @@ void	heredoc_loop(int fd, t_redir_node *redir)
 		write(fd, "\n", 1);
 		free(line);
 	}
+	return (restore_stdin(saved_fd, NULL), signals_handler(), 0);
 }
 
 static int	create_heredoc_file(t_redir_node *redir)
@@ -77,17 +93,15 @@ int	process_heredoc(t_node *node)
 {
 	if (!node)
 		return (0);
-	if (node->node_type == NODE_PIPE)
+	if (node->node_type == NODE_PIPE || node->node_type == NODE_AND
+		|| node->node_type == NODE_OR)
 	{
-		if (process_heredoc(node->pipe_command.first) != 0)
+		if (process_heredoc(node->bin_op.first) != 0)
 			return (1);
-	}
-	if (node->node_type == NODE_PIPE)
-	{
-		if (process_heredoc(node->pipe_command.second) != 0)
+		if (process_heredoc(node->bin_op.second) != 0)
 			return (1);
 	}
 	if (node->node_type == NODE_CMD)
-		heredoc_cmd(node);
+		return (heredoc_cmd(node));
 	return (0);
 }

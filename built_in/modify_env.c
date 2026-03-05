@@ -6,7 +6,7 @@
 /*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 16:04:24 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/23 12:53:03 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/04 14:20:20 by mzouhir          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,4 +86,19 @@ int	create_new(char *key, char *value, t_minishell *data)
 		new->value = NULL;
 	env_add_back(new, &data->env);
 	return (0);
+}
+
+void	print_tab(t_env *envp)
+{
+	t_env	*current;
+
+	current = envp;
+	while (current)
+	{
+		ft_printf("declare -x %s", current->key);
+		if (current->value)
+			ft_printf("=\"%s\"", current->value);
+		ft_printf("\n");
+		current = current->next;
+	}
 }

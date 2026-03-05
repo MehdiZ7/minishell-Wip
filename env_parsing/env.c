@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/03 17:52:36 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/03 18:32:42 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/02 06:49:52 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,21 +55,29 @@ static t_env	*extract_env(char *env)
 	return (new);
 }
 
-t_env	*init_env(char **envp)
+static void	*extract_all(char **envp, t_env **p_env)
 {
-	t_env	*env;
 	t_env	*tmp;
 	int		i;
 
 	i = 0;
-	env = NULL;
+	*p_env = NULL;
 	while (envp[i])
 	{
 		tmp = extract_env(envp[i]);
 		if (!tmp)
-			return (free_env(env), NULL);
-		env_add_back(tmp, &env);
+			return (free_env(*p_env), NULL);
+		env_add_back(tmp, p_env);
 		i++;
 	}
+	return ((void *)0x1);
+}
+
+t_env	*init_env(char **envp)
+{
+	t_env	*env;
+
+	if (extract_all(envp, &env) == NULL)
+		return (NULL);
 	return (env);
 }

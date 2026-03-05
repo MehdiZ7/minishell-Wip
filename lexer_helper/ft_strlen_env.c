@@ -1,30 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   ft_strlen_env.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 16:18:30 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/28 23:07:03 by lmilando         ###   ########.fr       */
+/*   Created: 2026/02/22 10:56:34 by lmilando          #+#    #+#             */
+/*   Updated: 2026/02/25 12:10:03 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "first_pass.h"
 
-int	ft_pwd(t_minishell *data)
+size_t	ft_strlen_env(char *var)
 {
-	char	*path;
+	size_t	len;
 
-	path = getcwd(NULL, 0);
-	if (!path)
-	{
-		data->exit_status = 1;
-		perror("pwd: ");
+	if (var[0] == '?')
 		return (1);
-	}
-	ft_printf("%s\n", path);
-	free(path);
-	data->exit_status = 0;
-	return (0);
+	len = 0;
+	while (var[len] && (ft_isalnum(var[len]) || var[len] == '_'))
+		len++;
+	return (len);
 }

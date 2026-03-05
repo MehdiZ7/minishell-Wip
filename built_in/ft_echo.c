@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_echo.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/10 15:32:31 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/10 16:14:35 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/28 23:06:39 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,13 +44,13 @@ int	ft_echo(t_node *node, t_minishell *data)
 	}
 	while (node->command.argv[i])
 	{
-		printf("%s", node->command.argv[i]);
+		ft_printf("%s", node->command.argv[i]);
 		if (node->command.argv[i + 1])
-			printf(" ");
+			ft_printf(" ");
 		i++;
 	}
 	if (n_flag == false)
-		printf("\n");
+		ft_printf("\n");
 	data->exit_status = 0;
 	return (0);
 }

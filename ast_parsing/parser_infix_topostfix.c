@@ -6,11 +6,11 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 09:22:37 by lmilando          #+#    #+#             */
-/*   Updated: 2026/02/18 18:17:41 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/28 13:12:41 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "ast_parsing.h"
 
 void		print_parser_step(t_node *node);
 
@@ -74,6 +74,9 @@ static void	*infix_operand(t_infix_to_postfix *p_i)
 	return ((void *)0x1);
 }
 
+/*TODO: Gerer les cas ou REDIR_IN REDIR_OUT et
+APPEND viennent avant la commande*/
+
 static void	*infix_loop(t_infix_to_postfix *p_i, t_minishell *minishell)
 {
 	if ((*p_i).tok->type == CMD_OR_ARG || (*p_i).tok->type == ENV)
@@ -98,6 +101,8 @@ static void	*infix_loop(t_infix_to_postfix *p_i, t_minishell *minishell)
 		if (infix_operand(p_i) == NULL)
 			return (NULL);
 	}
+	else
+		return (NULL);
 	return ((void *)0x1);
 }
 
@@ -117,8 +122,8 @@ t_list	*infix_to_postfix(t_minishell *minishell)
 		i.cur_node = (t_node *)i.op_stack->content;
 		if (i.cur_node->node_type == NODE_PAREN_OPEN)
 			return (ft_putstr_fd("minishell:ast failed: unbalanced paren\n",
-					STDERR_FILENO), \
-					infix_cleanup_all(&i.ret, &i.op_stack), NULL);
+					STDERR_FILENO), infix_cleanup_all(&i.ret, &i.op_stack),
+				NULL);
 		i.next_op = i.op_stack->next;
 		ft_lstadd_front(&i.ret, i.op_stack);
 		i.op_stack = i.next_op;

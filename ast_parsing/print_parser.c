@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/09 14:19:32 by lmilando          #+#    #+#             */
-/*   Updated: 2026/02/11 22:16:12 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/28 13:31:45 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,20 +29,13 @@ void	print_node_type(t_node_type type)
 	else
 		ft_printf("UNKNOWN");
 }
-void	print_postfix_list(t_list *postfix, char *str)
-{
-	t_list	*cur;
-	t_node	*node;
-	int		i;
-	int		j;
 
-	if (postfix == NULL)
-	{
-		ft_printf("Liste %s vide\n", str);
-		return ;
-	}
-	ft_printf("====Liste %s Postfix===\n", str);
-	cur = postfix;
+static void	print_postfix_list_loop(t_list *cur)
+{
+	int		j;
+	int		i;
+	t_node	*node;
+
 	i = 0;
 	while (cur != NULL)
 	{
@@ -65,19 +58,21 @@ void	print_postfix_list(t_list *postfix, char *str)
 	}
 }
 
-void	print_ast(t_node *node, int depth)
+void	print_postfix_list(t_list *postfix, char *str)
 {
-	int	i;
+	if (postfix == NULL)
+	{
+		ft_printf("Liste %s vide\n", str);
+		return ;
+	}
+	ft_printf("====Liste %s Postfix===\n", str);
+	print_postfix_list_loop(postfix);
+}
+
+static void	print_ast_node(t_node *node, int depth)
+{
 	int	j;
 
-	if (node == NULL)
-		return ;
-	i = 0;
-	while (i < depth)
-	{
-		ft_printf(" ");
-		i++;
-	}
 	if (node->node_type == NODE_CMD)
 	{
 		ft_printf("CMD: ");
@@ -101,4 +96,19 @@ void	print_ast(t_node *node, int depth)
 		print_ast(node->bin_op.first, depth + 1);
 		print_ast(node->bin_op.second, depth + 1);
 	}
+}
+
+void	print_ast(t_node *node, int depth)
+{
+	int	i;
+
+	if (node == NULL)
+		return ;
+	i = 0;
+	while (i < depth)
+	{
+		ft_printf(" ");
+		i++;
+	}
+	print_ast_node(node, depth);
 }

@@ -6,7 +6,7 @@
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/15 16:27:13 by lmilando          #+#    #+#             */
-/*   Updated: 2026/02/18 20:14:15 by lmilando         ###   ########.fr       */
+/*   Updated: 2026/02/28 13:21:23 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,26 @@ static void	*null_handler(t_infix_to_postfix *p_i)
 	return ((void *)0x1);
 }
 
-void	*infix_paren_close(t_infix_to_postfix *p_i)
+static void	*infix_paren_close_helper(t_infix_to_postfix *p_i)
 {
 	t_list	*tmp;
 
+	if ((*p_i).op_stack == NULL
+		|| ((t_node *)(*p_i).op_stack->content)->node_type != NODE_PAREN_OPEN)
+	{
+		ft_putstr_fd("minishell:ast failed: unbalanced paren\n", STDERR_FILENO);
+		return (infix_cleanup_all(&(*p_i).ret, &(*p_i).op_stack), NULL);
+	}
+	tmp = (*p_i).op_stack;
+	(*p_i).next_op = (*p_i).op_stack->next;
+	(*p_i).op_stack = (*p_i).next_op;
+	free_ast_node(tmp->content);
+	free(tmp);
+	return ((void *)0x1);
+}
+
+void	*infix_paren_close(t_infix_to_postfix *p_i)
+{
 	if (null_handler(p_i) == NULL)
 		return (NULL);
 	while ((*p_i).op_stack != NULL)
@@ -40,20 +56,8 @@ void	*infix_paren_close(t_infix_to_postfix *p_i)
 		ft_lstadd_front(&(*p_i).ret, (*p_i).op_stack);
 		(*p_i).op_stack = (*p_i).next_op;
 	}
-	if ((*p_i).op_stack == NULL
-		|| ((t_node *)(*p_i).op_stack->content)->node_type != NODE_PAREN_OPEN)
-	{
-		ft_putstr_fd("minishell:ast failed: unbalanced paren\n", STDERR_FILENO);
-		return (infix_cleanup_all(&(*p_i).ret, &(*p_i).op_stack), NULL);
-	}
-	else
-	{
-		tmp = (*p_i).op_stack;
-		(*p_i).next_op = (*p_i).op_stack->next;
-		(*p_i).op_stack = (*p_i).next_op;
-		free_ast_node(tmp->content);
-		free(tmp);
-	}
+	if (infix_paren_close_helper(p_i) == NULL)
+		return (NULL);
 	(*p_i).tok = (*p_i).tok->next;
 	return ((void *)0x1);
 }

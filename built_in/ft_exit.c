@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_exit.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 12:26:18 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 13:55:44 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/03/01 12:23:33 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,19 +45,19 @@ int	ft_exit(t_node *node, t_minishell *data)
 {
 	int	ret;
 
-	printf("exit\n");
+	ft_putstr_fd("exit\n", STDOUT_FILENO);
 	if (node->command.argv[1])
 	{
 		if (!is_valid(node->command.argv[1]))
 		{
-			printf("exit: %s numeric argument required\n",
-				node->command.argv[1]);
+			ft_putstr_fd("exit: numeric argument required\n",
+				STDERR_FILENO);
 			clean_exit(data);
-			exit(255);
+			exit(2);
 		}
 		if (node->command.argv[2])
 		{
-			printf("exit: too many arguments\n");
+			ft_putstr_fd("exit: too many arguments\n", STDERR_FILENO);
 			data->exit_status = 1;
 			return (1);
 		}

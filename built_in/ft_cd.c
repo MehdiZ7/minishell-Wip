@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_cd.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mzouhir <marvin@42.fr>                     +#+  +:+       +#+        */
+/*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/11 14:07:50 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/11 16:07:56 by mzouhir          ###   ########.fr       */
+/*   Updated: 2026/02/28 23:03:57 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int	update_pwd(char *dest, char *old_pwd, t_minishell *data)
 	if (dest)
 		update_env("PWD", dest, data);
 	else
-		printf("cd : error retrieving current directory\n");
+		ft_putstr_fd("cd : error retrieving current directory\n", STDERR_FILENO);
 	if (dest)
 		free(dest);
 	free(old_pwd);
@@ -62,25 +62,24 @@ char	*get_target(t_node *node, t_minishell *data)
 	{
 		dest = get_value("HOME", data);
 		if (!dest)
-			return (printf("cd: HOME not set\n"), NULL);
+			return (ft_putstr_fd("cd: HOME not set\n", STDERR_FILENO), NULL);
 	}
 	else if (!ft_strncmp(node->command.argv[1], "-", 2))
 	{
 		dest = get_value("OLDPWD", data);
 		if (!dest)
-			return (printf("cd: OLDPWD not set\n"), NULL);
-		printf("%s\n", dest);
+			return (ft_putstr_fd("cd: OLDPWD not set\n", STDERR_FILENO), NULL);
+		ft_printf("%s\n", dest);
 	}
 	else
 		dest = node->command.argv[1];
 	return (dest);
 }
 
-int	ft_cd(t_node *node, t_minishell *data)
+static char	*get_old_pwd(t_minishell *data)
 {
 	char	*old_pwd;
 	char	*tmp;
-	char	*dest;
 
 	old_pwd = getcwd(NULL, 0);
 	if (!old_pwd)
@@ -91,6 +90,21 @@ int	ft_cd(t_node *node, t_minishell *data)
 		else
 			old_pwd = NULL;
 	}
+	return (old_pwd);
+}
+
+int	ft_cd(t_node *node, t_minishell *data)
+{
+	char	*old_pwd;
+	char	*dest;
+
+	if (node->command.argv[1] && node->command.argv[2])
+	{
+		data->exit_status = 1;
+		ft_putstr_fd("minishell: cd: too many arguments\n", STDERR_FILENO);
+		return (1);
+	}
+	old_pwd = get_old_pwd(data);
 	dest = get_target(node, data);
 	if (!dest)
 	{

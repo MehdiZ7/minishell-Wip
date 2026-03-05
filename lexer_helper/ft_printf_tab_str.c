@@ -1,30 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_pwd.c                                           :+:      :+:    :+:   */
+/*   ft_printf_tab_str.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lmilando <lmilando@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/02/10 16:18:30 by mzouhir           #+#    #+#             */
-/*   Updated: 2026/02/28 23:07:03 by lmilando         ###   ########.fr       */
+/*   Created: 2026/02/25 10:43:26 by lmilando          #+#    #+#             */
+/*   Updated: 2026/02/28 13:55:14 by lmilando         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include <stdio.h>
 
-int	ft_pwd(t_minishell *data)
+void	ft_printf_tab_str(t_tab_str *tab)
 {
-	char	*path;
+	size_t	i;
 
-	path = getcwd(NULL, 0);
-	if (!path)
+	if (tab == NULL)
 	{
-		data->exit_status = 1;
-		perror("pwd: ");
-		return (1);
+		ft_printf("tab : NULL\n");
+		return ;
 	}
-	ft_printf("%s\n", path);
-	free(path);
-	data->exit_status = 0;
-	return (0);
+	i = 0;
+	while (i < tab->len)
+	{
+		ft_printf("[%ld]/%d: %s\n", i, tab->is_op[i], tab->strs[i]);
+		i++;
+	}
 }
